@@ -2,6 +2,12 @@
 
 ## TP-Link
 
+# TL-WR703N v1
+ifeq ($(BROKEN),1)
+$(eval $(call GluonProfile,TLWR703))
+$(eval $(call GluonModel,TLWR703,tl-wr703n-v1-squashfs,tp-link-tl-wr703n-v1))
+endif
+
 # TL-WR740N v1, v3, v4
 $(eval $(call GluonProfile,TLWR740))
 $(eval $(call GluonModel,TLWR740,tl-wr740n-v1-squashfs,tp-link-tl-wr740n-nd-v1))
@@ -33,9 +39,10 @@ $(eval $(call GluonModel,TLWR941,tl-wr941nd-v2-squashfs,tp-link-tl-wr941n-nd-v2)
 $(eval $(call GluonModel,TLWR941,tl-wr941nd-v3-squashfs,tp-link-tl-wr941n-nd-v3))
 $(eval $(call GluonModel,TLWR941,tl-wr941nd-v4-squashfs,tp-link-tl-wr941n-nd-v4))
 
-# TL-WR1043N/ND v1
+# TL-WR1043N/ND v1, v2
 $(eval $(call GluonProfile,TLWR1043))
 $(eval $(call GluonModel,TLWR1043,tl-wr1043nd-v1-squashfs,tp-link-tl-wr1043n-nd-v1))
+$(eval $(call GluonModel,TLWR1043,tl-wr1043nd-v2-squashfs,tp-link-tl-wr1043n-nd-v2))
 
 # TL-WDR3500/3600/4300 v1
 $(eval $(call GluonProfile,TLWDR4300))
@@ -76,8 +83,8 @@ $(eval $(call GluonModel,UBNT,ubnt-unifi-outdoor-squashfs,ubiquiti-unifiap-outdo
 ## D-Link
 
 # D-Link DIR-615 rev. E1
-$(eval $(call GluonProfile,DIR615E1))
-$(eval $(call GluonModel,DIR615E1,dir-615-e1-squashfs,d-link-dir-615-rev-e1))
+#$(eval $(call GluonProfile,DIR615E1))
+#$(eval $(call GluonModel,DIR615E1,dir-615-e1-squashfs,d-link-dir-615-rev-e1))
 
 # D-Link DIR-825 rev. B1
 $(eval $(call GluonProfile,DIR825B1))
@@ -89,3 +96,9 @@ $(eval $(call GluonModel,DIR825B1,dir-825-b1-squashfs,d-link-dir-825-rev-b1))
 # WRT160NL
 $(eval $(call GluonProfile,WRT160NL))
 $(eval $(call GluonModel,WRT160NL,wrt160nl-squashfs,linksys-wrt160nl))
+
+## Buffalo
+
+# WZR-HP-G450H
+$(eval $(call GluonProfile,WZRHPG450H))
+$(eval $(call GluonModel,WZRHPG450H,wzr-hp-g450h-squashfs,buffalo-wzr-hp-g450h))

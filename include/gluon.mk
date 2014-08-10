@@ -1,12 +1,12 @@
 ifneq ($(__gluon_inc),1)
 __gluon_inc=1
 
-GLUON_ORIGOPENWRTDIR := $(GLUONDIR)/openwrt
-GLUON_SITEDIR := $(GLUONDIR)/site
-GLUON_SITE_CONFIG := $(GLUON_SITEDIR)/site.conf
-
+GLUON_SITEDIR ?= $(GLUONDIR)/site
 GLUON_IMAGEDIR ?= $(GLUONDIR)/images
 GLUON_BUILDDIR ?= $(GLUONDIR)/build
+
+GLUON_ORIGOPENWRTDIR := $(GLUONDIR)/openwrt
+GLUON_SITE_CONFIG := $(GLUON_SITEDIR)/site.conf
 
 GLUON_OPENWRTDIR = $(GLUON_BUILDDIR)/$(GLUON_TARGET)/openwrt
 
@@ -28,7 +28,7 @@ export GLUON_VERSION
 ifeq ($(OPENWRT_BUILD),1)
 ifeq ($(GLUON_TOOLS),1)
 
-CONFIG_VERSION_REPO := $(shell $(GLUONDIR)/scripts/site.sh opkg_repo || echo http://downloads.openwrt.org/attitude_adjustment/12.09/%S/packages)
+CONFIG_VERSION_REPO := $(shell $(GLUONDIR)/scripts/site.sh opkg_repo || echo http://downloads.openwrt.org/barrier_breaker/14.07-rc2/%S/packages)
 export CONFIG_VERSION_REPO
 
 GLUON_SITE_CODE := $(shell $(GLUONDIR)/scripts/site.sh site_code)
@@ -45,7 +45,7 @@ endif
 
 define merge-lists
 $(1) :=
-$(foreach var,$(2),$(1) := $$(sort $$(filter-out -% $$(patsubst -%,%,$$(filter -%,$$($(var)))),$$($(1)) $$($(var))))
+$(foreach var,$(2),$(1) := $$(filter-out -% $$(patsubst -%,%,$$(filter -%,$$($(var)))),$$($(1)) $$($(var)))
 )
 endef
 
@@ -60,7 +60,7 @@ endef
 
 regex-escape = $(shell echo '$(1)' | sed -e 's/[]\/()$*.^|[]/\\&/g')
 
-GLUON_DEFAULT_PACKAGES := gluon-core kmod-ipv6 firewall ip6tables -uboot-envtools -kmod-usb-core -kmod-usb2 -kmod-ledtrig-usbdev
+GLUON_DEFAULT_PACKAGES := gluon-core kmod-ipv6 firewall ip6tables -uboot-envtools
 
 override DEFAULT_PACKAGES.router :=
 

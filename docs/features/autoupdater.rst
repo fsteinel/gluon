@@ -16,8 +16,7 @@ be set on the command line, or it can be taken from the ``site.mk``.
 
 The priority defines the maximum number of days that may pass between releasing an update and installation
 of the images. The update probability with start at 0 after the release time mentioned in the manifest
-and then slowly rise to 1 after the number of days given by the priority has passed. (Note: The priority
-doesn't have an effect as the moment, this is yet to be implemented)
+and then slowly rise to 1 after the number of days given by the priority has passed.
 
 The priority may be an integer or a decimal fraction.
 
@@ -32,8 +31,10 @@ A fully automated nightly build could use the following commands:
     make -j5 GLUON_BRANCH=experimental
     make manifest GLUON_BRANCH=experimental
     contrib/sign.sh $SECRETKEY images/sysupgrade/experimental.manifest
+
+    rm -rf /where/to/put/this/experimental
     cp -r images /where/to/put/this/experimental
-    ln -s experimental.manifest /where/to/put/this/experimental/manifest
+    ln -s experimental.manifest /where/to/put/this/experimental/sysupgrade/manifest
 
 
 Infrastructure
