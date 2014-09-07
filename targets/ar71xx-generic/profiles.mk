@@ -3,10 +3,12 @@
 ## TP-Link
 
 # TL-WR703N v1
-ifeq ($(BROKEN),1)
 $(eval $(call GluonProfile,TLWR703))
 $(eval $(call GluonModel,TLWR703,tl-wr703n-v1-squashfs,tp-link-tl-wr703n-v1))
-endif
+
+# TL-WR710N v1
+$(eval $(call GluonProfile,TLWR710))
+$(eval $(call GluonModel,TLWR710,tl-wr710n-v1-squashfs,tp-link-tl-wr710n-v1))
 
 # TL-WR740N v1, v3, v4
 $(eval $(call GluonProfile,TLWR740))
@@ -19,6 +21,10 @@ $(eval $(call GluonProfile,TLWR741))
 $(eval $(call GluonModel,TLWR741,tl-wr741nd-v1-squashfs,tp-link-tl-wr741n-nd-v1))
 $(eval $(call GluonModel,TLWR741,tl-wr741nd-v2-squashfs,tp-link-tl-wr741n-nd-v2))
 $(eval $(call GluonModel,TLWR741,tl-wr741nd-v4-squashfs,tp-link-tl-wr741n-nd-v4))
+
+# TL-WR801N/ND v2
+$(eval $(call GluonProfile,TLWA801))
+$(eval $(call GluonModel,TLWA801,tl-wa801nd-v2-squashfs,tp-link-tl-wa801n-nd-v2))
 
 # TL-WR841N/ND v3, v5, v7, v8, v9
 $(eval $(call GluonProfile,TLWR841))
@@ -58,9 +64,10 @@ $(eval $(call GluonModel,TLWA901,tl-wa901nd-v2-squashfs,tp-link-tl-wa901n-nd-v2)
 $(eval $(call GluonProfile,TLMR3020))
 $(eval $(call GluonModel,TLMR3020,tl-mr3020-v1-squashfs,tp-link-tl-mr3020-v1))
 
-# TL-MR3040 v1
+# TL-MR3040 v1, v2
 $(eval $(call GluonProfile,TLMR3040))
 $(eval $(call GluonModel,TLMR3040,tl-mr3040-v1-squashfs,tp-link-tl-mr3040-v1))
+$(eval $(call GluonModel,TLMR3040,tl-mr3040-v2-squashfs,tp-link-tl-mr3040-v2))
 
 # TL-MR3220 v1
 $(eval $(call GluonProfile,TLMR3220))
@@ -71,6 +78,11 @@ $(eval $(call GluonProfile,TLMR3420))
 $(eval $(call GluonModel,TLMR3420,tl-mr3420-v1-squashfs,tp-link-tl-mr3420-v1))
 $(eval $(call GluonModel,TLMR3420,tl-mr3420-v2-squashfs,tp-link-tl-mr3420-v2))
 
+ifeq ($(BROKEN),1)
+# Archer C7 v2
+$(eval $(call GluonProfile,ARCHERC7,kmod-ath10k))
+$(eval $(call GluonModel,ARCHERC7,archer-c7-v2-squashfs,tp-link-archer-c7-v2))
+endif
 
 ## Ubiquiti (everything)
 $(eval $(call GluonProfile,UBNT))
@@ -78,6 +90,9 @@ $(eval $(call GluonModel,UBNT,ubnt-bullet-m-squashfs,ubiquiti-bullet-m))
 $(eval $(call GluonModel,UBNT,ubnt-nano-m-squashfs,ubiquiti-nanostation-m))
 $(eval $(call GluonModel,UBNT,ubnt-unifi-squashfs,ubiquiti-unifi))
 $(eval $(call GluonModel,UBNT,ubnt-unifi-outdoor-squashfs,ubiquiti-unifiap-outdoor))
+ifeq ($(BROKEN),1)
+$(eval $(call GluonModel,UBNT,ubnt-uap-pro-squashfs,ubiquiti-unifi-ap-pro))
+endif
 
 
 ## D-Link

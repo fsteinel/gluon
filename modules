@@ -1,19 +1,23 @@
 GLUON_FEEDS='openwrt gluon routing luci'
 
 OPENWRT_REPO=git://git.openwrt.org/14.07/openwrt.git
-OPENWRT_COMMIT=79465bfe7633bb92e7ea3468e9cec8bf5d4c0190
+OPENWRT_COMMIT=088b1cbba7c9b114b6b0bc9171561d20b86bfecf
 
 PACKAGES_OPENWRT_REPO=git://github.com/openwrt/packages.git
-PACKAGES_OPENWRT_COMMIT=a5944176bc761a3fd233c59bad1af96165e5b60f
+PACKAGES_OPENWRT_COMMIT=eaa3e00d345a52c6dc67f8b9b0b2d4a2971425d5
 PACKAGES_OPENWRT_BRANCH=for-14.07
 
 PACKAGES_GLUON_REPO=git://github.com/freifunk-ffm/packages.git
 #PACKAGES_GLUON_COMMIT=902af76a7d868ba53bc85c61e3992834b56380e9
 #PACKAGES_GLUON_REPO=git://github.com/freifunk-gluon/packages.git
 PACKAGES_GLUON_COMMIT=c6b10d7bae3ca27e625bf1345b264bd7e45c3cb6
+#=======
+#PACKAGES_GLUON_REPO=git://github.com/freifunk-gluon/packages.git
+#PACKAGES_GLUON_COMMIT=e4fc1955cc6d198f9817559a9bad78660915ced7
+#>>>>>>> gluon-main/master
 
 PACKAGES_ROUTING_REPO=git://github.com/openwrt-routing/packages.git
-PACKAGES_ROUTING_COMMIT=9d3c311fdd7dc15fd5e333b55c259fc2cf661ea2
+PACKAGES_ROUTING_COMMIT=11ed2e86132f0516402a2cc4edbd26a8e097cefe
 PACKAGES_ROUTING_BRANCH=for-14.07
 
 PACKAGES_LUCI_REPO=git://git.openwrt.org/project/luci.git
