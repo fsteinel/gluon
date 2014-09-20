@@ -13,7 +13,6 @@ User Documentation
 
    user/getting_started
    user/site
-   user/builds
    user/faq
 
 Features
@@ -27,6 +26,7 @@ Features
    features/private-wlan
    features/mesh-on-wan
    features/announce
+   features/authorized-keys
 
 Developer Documentation
 -----------------------
@@ -35,6 +35,7 @@ Developer Documentation
    :maxdepth: 2
 
    dev/basics
+   dev/hardware
 
 Supported Devices
 -----------------
