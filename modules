@@ -9,7 +9,7 @@ PACKAGES_OPENWRT_BRANCH=for-14.07
 
 PACKAGES_GLUON_REPO=git://github.com/freifunk-ffm/packages.git
 #PACKAGES_GLUON_COMMIT=c6b10d7bae3ca27e625bf1345b264bd7e45c3cb6
-PACKAGES_GLUON_COMMIT=0952448fc0ffa6e8c71a9ce9f54888890f878dcf
+PACKAGES_GLUON_COMMIT=9642f37a49056b9a87aa2b5afeab043578c994c2
 
 #=======
 #PACKAGES_GLUON_REPO=git://github.com/freifunk-gluon/packages.git
