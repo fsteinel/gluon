@@ -27,6 +27,7 @@ Features
    features/mesh-on-wan
    features/announce
    features/authorized-keys
+   features/roles
 
 Developer Documentation
 -----------------------
@@ -36,7 +37,9 @@ Developer Documentation
 
    dev/basics
    dev/hardware
+   dev/upgrade
    dev/configmode
+   dev/wan
 
 Supported Devices
 -----------------

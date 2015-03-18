@@ -66,6 +66,8 @@ wifi24
     of ``ssid`` of your client network, the ``channel`` your community is using,
     ``htmode``, the adhoc ssid ``mesh_ssid`` used between devices, the adhoc
     bssid ``mesh_bssid`` and the adhoc multicast rate ``mesh_mcast_rate``.
+    Optionally ``mesh_vlan`` can be used to setup VLAN on top of the 802.11
+    ad-hoc interface.
     Combined in an dictionary, e.g.:
     ::
 
@@ -118,14 +120,13 @@ autoupdater : package
     ::
 
       autoupdater = {
-        enabled = 1,
         branch = 'experimental',
         branches = {
           stable = {
             name = 'stable',
             mirrors = {
-              'http://{fdca:ffee:babe:1::fec1}/firmware/stable/sysupgrade/',
-              'http://{fdca:ffee:babe:1::fec2}/firmware/stable/sysupgrade/',
+              'http://[fdca:ffee:babe:1::fec1]/firmware/stable/sysupgrade/',
+              'http://[fdca:ffee:babe:1::fec2]/firmware/stable/sysupgrade/',
             },
             probability = 0.08,
             good_signatures = 2,
@@ -136,6 +137,26 @@ autoupdater : package
           }
         }
       }
+
+roles : optional
+    Optional role definitions. With this nodes will announce their role inside the mesh.
+    In the backend this adds the facility to distinguish between normal, backbone and
+    service nodes or even gateways (if they advertise the role, also). It is up to
+    the community which roles to define. See the section below as an example.
+    ``default`` takes the default role which is set initially. This value should be
+    part of ``list``. If you want node owners to change the role via config mode add
+    the package ``gluon-luci-node-role`` to ``site.mk``.
+    ::
+
+      roles = {
+        default = 'node',
+        list = {
+          node = 'Normal Node',
+          test = 'Test Node',
+          backbone = 'Backbone Node',
+          service = 'Service Node',
+        },
+      },
 
 simple_tc : package
     Uplink traffic control
@@ -148,6 +169,15 @@ simple_tc : package
           limit_egress = 200,
           limit_ingress = 3000,
         },
+      },
+
+setup_mode : package
+    Allows skipping setup mode (config mode) at first boot when attribute
+    ``skip`` is set to ``true``. This is optional and may be left out.
+    ::
+
+      setup_mode {
+        skip = true,
       },
 
 config_mode : package
@@ -214,11 +244,13 @@ This is a non-exhaustive list of site-repos from various communities:
 * `site-ffbs <https://github.com/ffbs/site-ffbs>`_ (Braunschweig)
 * `site-ffhb <https://github.com/FreifunkBremen/gluon-site-ffhb>`_ (Bremen)
 * `site-ffda <https://github.com/freifunk-darmstadt/site-ffda>`_ (Darmstadt)
+* `site-ffgoe <https://github.com/freifunk-goettingen/site-ffgoe>`_ (Göttingen)
 * `site-ffhh <https://github.com/freifunkhamburg/site-ffhh>`_ (Hamburg)
 * `site-ffhgw <https://github.com/lorenzo-greifswald/site-ffhgw>`_ (Greifswald)
 * `site-ffhl <https://github.com/freifunk-gluon/site-ffhl>`_ (Lübeck)
 * `site-ffmd <https://github.com/FreifunkMD/site-ffmd>`_ (Magdeburg)
-* `site-ffmz <https://github.com/freifunk-mwu/site-ffmz>`_ (Mainz, Wiesbaden & Umgebung)
+* `site-ffmwu <https://github.com/freifunk-mwu/site-ffmwu>`_ (Mainz, Wiesbaden & Umgebung)
+* `site-ffmyk <https://github.com/FreifunkMYK/site-ffmyk>`_ (Mayen-Koblenz)
 * `site-ffm <https://github.com/freifunkMUC/site-ffm>`_ (München)
 * `site-ffms <https://github.com/FreiFunkMuenster/site-ffms>`_ (Münster)
 * `site-ffnw <https://git.freifunk-ol.de/root/siteconf.git>`_ (Nordwest)
@@ -227,3 +259,4 @@ This is a non-exhaustive list of site-repos from various communities:
 * `site-ffrl <https://github.com/ffrl/sites-ffrl>`_ (Rheinland)
 * `site-ffrg <https://github.com/ffruhr/site-ffruhr>`_ (Ruhrgebiet)
 * `site-ffs <https://github.com/freifunk-stuttgart/site-ffs>`_ (Stuttgart)
+* `site-fftr <https://github.com/freifunktrier/site-fftr>`_ (Trier)
