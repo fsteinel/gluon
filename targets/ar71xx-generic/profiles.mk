@@ -12,9 +12,7 @@ $(eval $(call GluonModel,CPE510,cpe210-220-510-520,tp-link-cpe520-v1.0))
 # TL-WA701N/ND v1, v2
 $(eval $(call GluonProfile,TLWA701))
 $(eval $(call GluonModel,TLWA701,tl-wa701n-v1,tp-link-tl-wa701n-nd-v1))
-ifeq ($(BROKEN),1)
-$(eval $(call GluonModel,TLWA701,tl-wa701nd-v2,tp-link-tl-wa701n-nd-v2)) # BROKEN: untested
-endif
+$(eval $(call GluonModel,TLWA701,tl-wa701nd-v2,tp-link-tl-wa701n-nd-v2))
 
 # TL-WR703N v1
 $(eval $(call GluonProfile,TLWR703))
@@ -24,25 +22,28 @@ $(eval $(call GluonModel,TLWR703,tl-wr703n-v1,tp-link-tl-wr703n-v1))
 $(eval $(call GluonProfile,TLWR710))
 $(eval $(call GluonModel,TLWR710,tl-wr710n-v1,tp-link-tl-wr710n-v1))
 
-# TL-WR740N v1, v3, v4
+# TL-WR740N v1, v3, v4, v5
 $(eval $(call GluonProfile,TLWR740))
 $(eval $(call GluonModel,TLWR740,tl-wr740n-v1,tp-link-tl-wr740n-nd-v1))
 $(eval $(call GluonModel,TLWR740,tl-wr740n-v3,tp-link-tl-wr740n-nd-v3))
 $(eval $(call GluonModel,TLWR740,tl-wr740n-v4,tp-link-tl-wr740n-nd-v4))
+$(eval $(call GluonModel,TLWR740,tl-wr740n-v5,tp-link-tl-wr740n-nd-v5))
 
-# TL-WR741N/ND v1, v2, v4
+# TL-WR741N/ND v1, v2, v4, v5
 $(eval $(call GluonProfile,TLWR741))
 $(eval $(call GluonModel,TLWR741,tl-wr741nd-v1,tp-link-tl-wr741n-nd-v1))
 $(eval $(call GluonModel,TLWR741,tl-wr741nd-v2,tp-link-tl-wr741n-nd-v2))
 $(eval $(call GluonModel,TLWR741,tl-wr741nd-v4,tp-link-tl-wr741n-nd-v4))
+$(eval $(call GluonModel,TLWR741,tl-wr741nd-v5,tp-link-tl-wr741n-nd-v5))
 
 # TL-WR743N/ND v1, v1.1, v2
 $(eval $(call GluonProfile,TLWR743))
 $(eval $(call GluonModel,TLWR743,tl-wr743nd-v1,tp-link-tl-wr743n-nd-v1))
 $(eval $(call GluonModel,TLWR743,tl-wr743nd-v2,tp-link-tl-wr743n-nd-v2))
 
-# TL-WR801N/ND v2
+# TL-WR801N/ND v1, v2
 $(eval $(call GluonProfile,TLWA801))
+$(eval $(call GluonModel,TLWA801,tl-wa801nd-v1,tp-link-tl-wa801n-nd-v1))
 $(eval $(call GluonModel,TLWA801,tl-wa801nd-v2,tp-link-tl-wa801n-nd-v2))
 
 # TL-WR841N/ND v3, v5, v7, v8, v9
@@ -83,11 +84,10 @@ $(eval $(call GluonModel,TLWDR4300,tl-wdr4300-v1,tp-link-tl-wdr4300-v1))
 $(eval $(call GluonProfile,TLWA750))
 $(eval $(call GluonModel,TLWA750,tl-wa750re-v1,tp-link-tl-wa750re-v1))
 
-ifeq ($(BROKEN),1)
-# TL-WA830RE v2
+# TL-WA830RE v1, v2
 $(eval $(call GluonProfile,TLWA830))
+$(eval $(call GluonModel,TLWA830,tl-wa830re-v1,tp-link-tl-wa830re-v1))
 $(eval $(call GluonModel,TLWA830,tl-wa830re-v2,tp-link-tl-wa830re-v2))
-endif
 
 # TL-WA850RE v1
 $(eval $(call GluonProfile,TLWA850))
@@ -111,9 +111,10 @@ $(eval $(call GluonProfile,TLMR3040))
 $(eval $(call GluonModel,TLMR3040,tl-mr3040-v1,tp-link-tl-mr3040-v1))
 $(eval $(call GluonModel,TLMR3040,tl-mr3040-v2,tp-link-tl-mr3040-v2))
 
-# TL-MR3220 v1
+# TL-MR3220 v1, v2
 $(eval $(call GluonProfile,TLMR3220))
 $(eval $(call GluonModel,TLMR3220,tl-mr3220-v1,tp-link-tl-mr3220-v1))
+$(eval $(call GluonModel,TLMR3220,tl-mr3220-v2,tp-link-tl-mr3220-v2))
 
 # TL-MR3420 v1, v2
 $(eval $(call GluonProfile,TLMR3420))
@@ -134,14 +135,18 @@ endif
 ## Ubiquiti (everything)
 $(eval $(call GluonProfile,UBNT))
 $(eval $(call GluonModel,UBNT,ubnt-bullet-m,ubiquiti-bullet-m))
+$(eval $(call GluonModel,UBNT,ubnt-bullet-m,ubiquiti-loco-m))
+$(eval $(call GluonModel,UBNT,ubnt-bullet-m,ubiquiti-picostation-m))
+$(eval $(call GluonModel,UBNT,ubnt-bullet-m,ubiquiti-rocket-m))
+
 $(eval $(call GluonModel,UBNT,ubnt-loco-m-xw,ubiquiti-loco-m-xw))
 $(eval $(call GluonModel,UBNT,ubnt-nano-m,ubiquiti-nanostation-m))
 $(eval $(call GluonModel,UBNT,ubnt-nano-m-xw,ubiquiti-nanostation-m-xw))
+$(eval $(call GluonModel,UBNT,ubnt-uap-pro,ubiquiti-unifi-ap-pro))
 $(eval $(call GluonModel,UBNT,ubnt-unifi,ubiquiti-unifi))
 $(eval $(call GluonModel,UBNT,ubnt-unifi-outdoor,ubiquiti-unifiap-outdoor))
 ifeq ($(BROKEN),1)
 $(eval $(call GluonModel,UBNT,ubnt-ls-sr71,ubiquiti-ls-sr71)) # BROKEN: Untested
-$(eval $(call GluonModel,UBNT,ubnt-uap-pro,ubiquiti-unifi-ap-pro)) # BROKEN: not properly tested; probably issues with WLAN adapter detection
 $(eval $(call GluonModel,UBNT,ubnt-unifi-outdoor-plus,ubiquiti-unifiap-outdoor+)) # BROKEN: WLAN doesn't work correctly (high packet loss)
 endif
 
@@ -183,8 +188,8 @@ $(eval $(call GluonModel,WNDR3700,wndr3700v2,netgear-wndr3700v2))
 $(eval $(call GluonModel,WNDR3700,wndr3800,netgear-wndr3800))
 ifeq ($(BROKEN),1)
 $(eval $(call GluonModel,WNDR3700,wndrmac,netgear-wndrmac)) # BROKEN: untested
-$(eval $(call GluonModel,WNDR3700,wndrmacv2,netgear-wndrmacv2)) # BROKEN: untested
 endif
+$(eval $(call GluonModel,WNDR3700,wndrmacv2,netgear-wndrmacv2))
 
 ## Allnet
 
