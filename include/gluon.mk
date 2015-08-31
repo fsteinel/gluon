@@ -8,12 +8,16 @@ GLUON_BUILDDIR ?= $(GLUONDIR)/build
 GLUON_ORIGOPENWRTDIR := $(GLUONDIR)/openwrt
 GLUON_SITE_CONFIG := $(GLUON_SITEDIR)/site.conf
 
-GLUON_OPENWRTDIR = $(GLUON_BUILDDIR)/$(GLUON_TARGET)/openwrt
+export GLUONDIR GLUON_SITEDIR GLUON_SITE_CONFIG GLUON_IMAGEDIR GLUON_BUILDDIR
 
-BOARD_BUILDDIR = $(GLUON_BUILDDIR)/$(BOARD)$(if $(SUBTARGET),-$(SUBTARGET))
+
+BOARD_BUILDDIR = $(GLUON_BUILDDIR)/$(GLUON_TARGET)
 BOARD_KDIR = $(BOARD_BUILDDIR)/kernel
 
-export GLUONDIR GLUON_SITEDIR GLUON_SITE_CONFIG GLUON_IMAGEDIR GLUON_OPENWRTDIR GLUON_BUILDDIR
+export BOARD_BUILDDIR
+
+GLUON_OPENWRTDIR = $(BOARD_BUILDDIR)/openwrt
+
 
 $(GLUON_SITEDIR)/site.mk:
 	$(error There was no site configuration found. Please check out a site configuration to $(GLUON_SITEDIR))
@@ -24,11 +28,14 @@ $(GLUON_SITEDIR)/site.mk:
 GLUON_VERSION := $(shell cd $(GLUONDIR) && git describe --always 2>/dev/null || echo unknown)
 export GLUON_VERSION
 
+GLUON_LANGS ?= en
+export GLUON_LANGS
+
 
 ifeq ($(OPENWRT_BUILD),1)
 ifeq ($(GLUON_TOOLS),1)
 
-CONFIG_VERSION_REPO := $(shell $(GLUONDIR)/scripts/site.sh opkg_repo || echo http://downloads.openwrt.org/barrier_breaker/14.07-rc2/%S/packages)
+CONFIG_VERSION_REPO := $(shell $(GLUONDIR)/scripts/site.sh opkg_repo || echo http://downloads.openwrt.org/barrier_breaker/14.07/%S/packages)
 export CONFIG_VERSION_REPO
 
 GLUON_SITE_CODE := $(shell $(GLUONDIR)/scripts/site.sh site_code)
@@ -57,8 +64,6 @@ GLUON_TARGETS += $$(gluon_target)
 GLUON_TARGET_$$(gluon_target)_BOARD := $(1)
 GLUON_TARGET_$$(gluon_target)_SUBTARGET := $(2)
 endef
-
-regex-escape = $(shell echo '$(1)' | sed -e 's/[]\/()$*.^|[]/\\&/g')
 
 GLUON_DEFAULT_PACKAGES := gluon-core kmod-ipv6 firewall ip6tables -uboot-envtools
 
