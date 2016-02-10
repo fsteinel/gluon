@@ -24,9 +24,10 @@ Features
 
    features/configmode
    features/autoupdater
+   features/wlan-configuration
    features/private-wlan
    features/wired-mesh
-   features/announce
+   features/monitoring
    features/authorized-keys
    features/roles
 
@@ -133,6 +134,7 @@ ar71xx-generic
   - TL-WR801N/ND (v1, v2)
   - TL-WR841N/ND (v3, v5, v7, v8, v9, v10)
   - TL-WR842N/ND (v1, v2)
+  - TL-WR843N/ND (v1)
   - TL-WR940N (v1, v2, v3)
   - TL-WR941ND (v2, v3, v4, v5, v6)
   - TL-WR1043N/ND (v1, v2, v3)
