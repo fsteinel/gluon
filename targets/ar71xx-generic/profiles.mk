@@ -146,7 +146,7 @@ $(eval $(call GluonModel,TLWR2543,tl-wr2543-v1,tp-link-tl-wr2543n-nd-v1))
 
 ifeq ($(BROKEN),1)
 # Archer C5 v1, C7 v2
-$(eval $(call GluonProfile,ARCHERC7,kmod-ath10k))
+$(eval $(call GluonProfile,ARCHERC7,kmod-ath10k ath10k-firmware-qca988x-ct))
 $(eval $(call GluonModel,ARCHERC7,archer-c5,tp-link-archer-c5-v1)) # BROKEN: ath10k
 $(eval $(call GluonModel,ARCHERC7,archer-c7-v2,tp-link-archer-c7-v2)) # BROKEN: ath10k
 endif
@@ -157,12 +157,19 @@ $(eval $(call GluonModel,UBNT,ubnt-air-gateway,ubiquiti-airgateway))
 $(eval $(call GluonModel,UBNT,ubnt-airrouter,ubiquiti-airrouter))
 
 $(eval $(call GluonModel,UBNT,ubnt-bullet-m,ubiquiti-bullet-m))
-$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-loco-m))
-$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-picostation-m))
-$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-rocket-m))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-nanostation-loco-m2))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-nanostation-loco-m5))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-rocket-m2))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-rocket-m5))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-bullet-m2))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-bullet-m5))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-bullet-m,ubiquiti-picostation-m2))
+
+$(eval $(call GluonModel,UBNT,ubnt-nano-m,ubiquiti-nanostation-m))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-nanostation-m,ubiquiti-nanostation-m2))
+$(eval $(call GluonModelAlias,UBNT,ubiquiti-nanostation-m,ubiquiti-nanostation-m5))
 
 $(eval $(call GluonModel,UBNT,ubnt-loco-m-xw,ubiquiti-loco-m-xw))
-$(eval $(call GluonModel,UBNT,ubnt-nano-m,ubiquiti-nanostation-m))
 $(eval $(call GluonModel,UBNT,ubnt-nano-m-xw,ubiquiti-nanostation-m-xw))
 $(eval $(call GluonModel,UBNT,ubnt-uap-pro,ubiquiti-unifi-ap-pro))
 $(eval $(call GluonModel,UBNT,ubnt-unifi,ubiquiti-unifi))
