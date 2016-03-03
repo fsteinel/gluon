@@ -7,7 +7,7 @@
 # See /LICENSE for more information.
 #
 
-RELEASE:=Barrier Breaker
+RELEASE:=Chaos Calmer
 PREP_MK= OPENWRT_BUILD= QUIET=0
 
 export IS_TTY=$(shell tty -s && echo 1 || echo 0)
@@ -46,10 +46,6 @@ ifneq ($(shell $(HOSTCC) 2>&1 | grep clang),)
   export HOSTCC_WRAPPER:=$(TOPDIR)/scripts/clang-gcc-wrapper
 else
   export HOSTCC_WRAPPER:=$(HOSTCC)
-endif
-
-ifeq ($(FORCE),)
-  .config scripts/config/conf scripts/config/mconf: tmp/.prereq-build
 endif
 
 SCAN_COOKIE?=$(shell echo $$$$)

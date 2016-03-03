@@ -7,25 +7,28 @@
 GLUON_SITE_PACKAGES := \
 	gluon-mesh-batman-adv-15 \
 	gluon-alfred \
-	gluon-announced \
+	gluon-respondd \
 	gluon-autoupdater \
-	gluon-config-mode-hostname \
 	gluon-config-mode-autoupdater \
-	gluon-config-mode-mesh-vpn \
-	gluon-config-mode-geo-location \
 	gluon-config-mode-contact-info \
+	gluon-config-mode-core \
+	gluon-config-mode-geo-location \
+	gluon-config-mode-hostname \
+	gluon-config-mode-mesh-vpn \
 	gluon-ebtables-filter-multicast \
 	gluon-ebtables-filter-ra-dhcp \
 	gluon-luci-admin \
 	gluon-luci-autoupdater \
 	gluon-luci-portconfig \
+	gluon-luci-wifi-config \
 	gluon-next-node \
 	gluon-mesh-vpn-fastd \
 	gluon-radvd \
+	gluon-setup-mode \
 	gluon-status-page \
-	iwinfo \
+	haveged \
 	iptables \
-	haveged
+	iwinfo
 
 ##	DEFAULT_GLUON_RELEASE
 #		version string to use for images
@@ -33,7 +36,7 @@ GLUON_SITE_PACKAGES := \
 #			opkg compare-versions "$1" '>>' "$2"
 #		to decide if a version is newer or not.
 
-DEFAULT_GLUON_RELEASE := 0.4+0-exp$(shell date '+%Y%m%d')
+DEFAULT_GLUON_RELEASE := 0.6+exp$(shell date '+%Y%m%d')
 
 
 ##	GLUON_RELEASE
@@ -48,3 +51,6 @@ GLUON_RELEASE ?= $(DEFAULT_GLUON_RELEASE)
 
 # Default priority for updates.
 GLUON_PRIORITY ?= 0
+
+# Languages to include
+GLUON_LANGS ?= en de
