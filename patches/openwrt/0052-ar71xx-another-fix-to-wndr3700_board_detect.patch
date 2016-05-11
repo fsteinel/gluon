@@ -15,7 +15,7 @@ Fix by calling ar71xx_get_mtd_offset_size_format twice, once piping to awk
 directly.
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 1f341e3..b411e80 100755
+index 56f8279..45985fd 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -39,7 +39,7 @@ wndr3700_board_detect() {

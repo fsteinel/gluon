@@ -11,7 +11,7 @@ Fix by stripping off non-printable characters only for the actual output
 string, but not for the internal matching.
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 329f558..1f341e3 100755
+index f24ae19..56f8279 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -37,8 +37,9 @@ wndr3700_board_detect() {
