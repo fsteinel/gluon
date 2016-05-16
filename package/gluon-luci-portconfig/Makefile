@@ -17,7 +17,7 @@ define Package/gluon-luci-portconfig
   SECTION:=gluon
   CATEGORY:=Gluon
   TITLE:=Luci module for advanced ethernet port configuration
-  DEPENDS:=+gluon-luci-admin +gluon-client-bridge
+  DEPENDS:=+gluon-luci-admin +gluon-client-bridge gluon-mesh-provider
 endef
 
 define Build/Prepare

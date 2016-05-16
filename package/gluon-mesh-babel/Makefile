@@ -4,7 +4,11 @@ PKG_NAME:=gluon-mesh-babel
 PKG_VERSION:=1
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+<<<<<<< HEAD
 PROVIDES := gluon-radvd-provider
+=======
+
+>>>>>>> gluon-mesh-provider
 include $(GLUONDIR)/include/package.mk
 
 define Package/gluon-mesh-babel
