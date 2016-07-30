@@ -13,6 +13,7 @@ $Id$
 ]]--
 
 local uci = luci.model.uci.cursor()
+local lutil = require 'luci.util'
 local sysconfig = require 'gluon.sysconfig'
 
 local wan = uci:get_all("network", "wan")
@@ -98,9 +99,9 @@ function f.handle(self, state, data)
   if state == FORM_VALID then
     uci:set("network", "wan", "proto", data.ipv4)
     if data.ipv4 == "static" then
-      uci:set("network", "wan", "ipaddr", data.ipv4_addr)
-      uci:set("network", "wan", "netmask", data.ipv4_netmask)
-      uci:set("network", "wan", "gateway", data.ipv4_gateway)
+      uci:set("network", "wan", "ipaddr", data.ipv4_addr:trim())
+      uci:set("network", "wan", "netmask", data.ipv4_netmask:trim())
+      uci:set("network", "wan", "gateway", data.ipv4_gateway:trim())
     else
       uci:delete("network", "wan", "ipaddr")
       uci:delete("network", "wan", "netmask")
@@ -109,8 +110,8 @@ function f.handle(self, state, data)
 
     uci:set("network", "wan6", "proto", data.ipv6)
     if data.ipv6 == "static" then
-      uci:set("network", "wan6", "ip6addr", data.ipv6_addr)
-      uci:set("network", "wan6", "ip6gw", data.ipv6_gateway)
+      uci:set("network", "wan6", "ip6addr", data.ipv6_addr:trim())
+      uci:set("network", "wan6", "ip6gw", data.ipv6_gateway:trim())
     else
       uci:delete("network", "wan6", "ip6addr")
       uci:delete("network", "wan6", "ip6gw")
@@ -121,10 +122,15 @@ function f.handle(self, state, data)
     if sysconfig.lan_ifname then
       uci:set("network", "mesh_lan", "auto", data.mesh_lan)
 
+      local doit
       if data.mesh_lan == '1' then
-        uci:set("network", "client", "ifname", "bat0")
+        doit = uci.remove_from_set
       else
-        uci:set("network", "client", "ifname", sysconfig.lan_ifname .. " bat0")
+        doit = uci.add_to_set
+      end
+
+      for _, lanif in ipairs(lutil.split(sysconfig.lan_ifname, ' ')) do
+        doit(uci, "network", "client", "ifname", lanif)
       end
     end
 
