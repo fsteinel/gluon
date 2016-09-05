@@ -51,6 +51,7 @@ Packages
    :maxdepth: 1
 
    package/gluon-client-bridge
+   package/gluon-config-mode-geo-location
    package/gluon-ebtables-filter-multicast
    package/gluon-ebtables-filter-ra-dhcp
    package/gluon-radio-config
@@ -63,6 +64,8 @@ Releases
 .. toctree::
    :maxdepth: 1
 
+   releases/v2016.1.4
+   releases/v2016.1.3
    releases/v2016.1.2
    releases/v2016.1.1
    releases/v2016.1
@@ -80,6 +83,10 @@ Supported Devices & Architectures
 ar71xx-generic
 ^^^^^^^^^^^^^^
 
+* 8devices
+
+  - Carambola 2
+
 * ALFA Network
 
   - AP121
@@ -95,6 +102,11 @@ ar71xx-generic
   - WZR-HP-AG300H / WZR-600DHP
   - WZR-HP-G300NH
   - WZR-HP-G450H
+
+* Cisco Meraki
+
+  - MR12 / MR62
+  - MR16 / MR66
 
 * D-Link
 
@@ -149,7 +161,7 @@ ar71xx-generic
   - TL-WR741N/ND (v1, v2, v4, v5)
   - TL-WR743N/ND (v1, v2)
   - TL-WR801N/ND (v1, v2)
-  - TL-WR841N/ND (v3, v5, v7, v8, v9, v10)
+  - TL-WR841N/ND (v3, v5, v7, v8, v9, v10, v11)
   - TL-WR842N/ND (v1, v2)
   - TL-WR843N/ND (v1)
   - TL-WR940N (v1, v2, v3)

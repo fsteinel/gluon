@@ -37,4 +37,15 @@ c:section('network', 'interface', 'local_node6',
 )
 
 c:save('network')
-c:commit('network')
+
+c:delete('firewall', 'local_node')
+c:section('firewall', 'zone', 'local_node',
+	  {
+		  name = 'local_node',
+		  network = {'local_node'},
+		  input = 'ACCEPT',
+		  output = 'ACCEPT',
+		  forward = 'REJECT',
+	  }
+)
+c:save('firewall')

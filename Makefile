@@ -6,11 +6,14 @@ export LC_ALL LANG
 
 export SHELL:=/usr/bin/env bash
 
+GLUONPATH ?= $(PATH)
+export GLUONPATH := $(GLUONPATH)
+
 empty:=
 space:= $(empty) $(empty)
 
-GLUONMAKE_EARLY = $(SUBMAKE) -C $(GLUON_ORIGOPENWRTDIR) -f $(GLUONDIR)/Makefile GLUON_TOOLS=0 QUILT=
-GLUONMAKE = $(SUBMAKE) -C $(GLUON_OPENWRTDIR) -f $(GLUONDIR)/Makefile
+GLUONMAKE_EARLY = PATH=$(GLUONPATH) $(SUBMAKE) -C $(GLUON_ORIGOPENWRTDIR) -f $(GLUONDIR)/Makefile GLUON_TOOLS=0 QUILT=
+GLUONMAKE = PATH=$(GLUONPATH) $(SUBMAKE) -C $(GLUON_OPENWRTDIR) -f $(GLUONDIR)/Makefile
 
 ifneq ($(OPENWRT_BUILD),1)
 
@@ -295,7 +298,8 @@ prepare-target: $(GLUON_OPKG_KEY).pub
 $(target_prepared_stamp):
 	+$(GLUONMAKE_EARLY) prepare-target
 
-maybe-prepare-target: $(GLUON_OPKG_KEY).pub $(target_prepared_stamp)
+maybe-prepare-target: $(target_prepared_stamp)
+	+$(GLUONMAKE_EARLY) $(GLUON_OPKG_KEY).pub
 
 $(BUILD_DIR)/.prepared: Makefile
 	@mkdir -p $$(dirname $@)
