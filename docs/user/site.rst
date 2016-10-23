@@ -21,11 +21,13 @@ site_code
     The code of your community. It is good practice to use the TLD of
     your community here.
 
-prefix4
+prefix4 \: optional
     The IPv4 Subnet of your community mesh network in CIDR notation, e.g.
     ::
 
        prefix4 = '10.111.111.0/18'
+
+    Required if ``next_node.ip4`` is set.
 
 prefix6
     The IPv6 subnet of your community mesh network, e.g.
@@ -44,9 +46,12 @@ ntp_server
     List of NTP servers available in your community or used by your community, e.g.:
     ::
 
-       ntp_servers = {'1.ntp.services.ffeh','2.tnp.services.ffeh'}
+       ntp_servers = {'1.ntp.services.ffeh','2.ntp.services.ffeh'}
 
-opkg : optional
+    This NTP servers must be reachable via IPv6 from the nodes. If you don't want to set an IPv6 address
+    explicitly, but use a hostname (which is recommended), see also the :ref:`FAQ <faq-dns>`.
+
+opkg \: optional
     ``opkg`` package manager configuration.
 
     There are two optional fields in the ``opkg`` section:
@@ -72,7 +77,7 @@ opkg : optional
     - ``%GV`` is replaced by the Gluon version
     - ``%GR`` is replaced by the Gluon release (as specified in ``site.mk``)
 
-regdom : optional
+regdom \: optional
     The wireless regulatory domain responsible for your area, e.g.:
     ::
 
@@ -80,7 +85,7 @@ regdom : optional
 
     Setting ``regdom`` in mandatory if ``wifi24`` or ``wifi5`` is defined.
 
-wifi24 : optional
+wifi24 \: optional
     WLAN configuration for 2.4 GHz devices.
     ``channel`` must be set to a valid wireless channel for your radio.
 
@@ -94,6 +99,12 @@ wifi24 : optional
     Each interface may be disabled by setting ``disabled`` to ``true``.
     This will only affect new installations.
     Upgrades will not changed the disabled state.
+
+    Additionally it is possible to configure the ``supported_rates`` and ``basic_rate``
+    of each radio. Both are optional, by default hostapd/driver dictate the rates.
+    If ``supported_rates`` is set, ``basic_rate`` is required, because ``basic_rate``
+    has to be a subset of ``supported_rates``.
+    The example below disables 802.11b rates.
 
     ``ap`` requires a single parameter, a string, named ``ssid`` which sets the
     interface's ESSID.
@@ -109,6 +120,8 @@ wifi24 : optional
 
        wifi24 = {
          channel = 11,
+         supported_rates = {6000, 9000, 12000, 18000, 24000, 36000, 48000, 54000},
+         basic_rate = {6000, 9000, 18000, 36000, 54000},
          ap = {
            ssid = 'entenhausen.freifunk.net',
          },
@@ -123,10 +136,10 @@ wifi24 : optional
          },
        },
 
-wifi5 : optional
+wifi5 \: optional
     Same as `wifi24` but for the 5Ghz radio.
 
-next_node : package
+next_node \: package
     Configuration of the local node feature of Gluon
     ::
 
@@ -136,7 +149,9 @@ next_node : package
         mac = 'ca:ff:ee:ba:be:00'
       }
 
-mesh : optional
+    The IPv4 next-node address is optional.
+
+mesh \: optional
     Options specific to routing protocols.
 
     At the moment, only the ``batman_adv`` routing protocol has such options:
@@ -220,14 +235,20 @@ fastd_mesh_vpn
         },
       }
 
-mesh_on_wan : optional
+mesh_on_wan \: optional
     Enables the mesh on the WAN port (``true`` or ``false``).
 
-mesh_on_lan : optional
+mesh_on_lan \: optional
     Enables the mesh on the LAN port (``true`` or ``false``).
 
-autoupdater : package
+poe_passthrough \: optional
+    Enable PoE passthrough by default on hardware with such a feature.
+
+autoupdater \: package
     Configuration for the autoupdater feature of Gluon.
+
+    The mirrors are checked in random order until the manifest could be downloaded
+    successfully or all mirrors have been tried.
     ::
 
       autoupdater = {
@@ -249,7 +270,10 @@ autoupdater : package
         }
       }
 
-roles : optional
+    All configured mirrors must be reachable from the nodes via IPv6. If you don't want to set an IPv6 address
+    explicitly, but use a hostname (which is recommended), see also the :ref:`FAQ <faq-dns>`.
+
+roles \: optional
     Optional role definitions. Nodes will announce their role inside the mesh.
     This will allow in the backend to distinguish between normal, backbone and
     service nodes or even gateways (if they advertise that role). It is up to
@@ -273,7 +297,7 @@ roles : optional
         },
       },
 
-setup_mode : package
+setup_mode \: package
     Allows skipping setup mode (config mode) at first boot when attribute
     ``skip`` is set to ``true``. This is optional and may be left out.
     ::
@@ -282,7 +306,7 @@ setup_mode : package
         skip = true,
       },
 
-legacy : package
+legacy \: package
     Configuration for the legacy upgrade path.
     This is only required in communities upgrading from Lübeck's LFF-0.3.x.
     ::
@@ -353,6 +377,41 @@ utilities are installed.
    Depending on the context, you might be able to use comments like
    ``<!-- empty -->`` as translations to effectively hide the text.
 
+Site modules
+------------
+
+The file ``modules`` in the site repository is completely optional and can be used
+to supply additional package feeds from which packages are built. The git repositories
+specified here are retrieved in addition to the default feeds when ``make update``
+it called.
+
+This file's format is very similar to the toplevel ``modules`` file of the Gluon
+tree, with the important different that the list of feeds must be assigned to
+the variable ``GLUON_SITE_FEEDS``. Multiple feed names must be separated by spaces,
+for example::
+
+    GLUON_SITE_FEEDS='foo bar'
+
+The feed names may only contain alphanumerical characters, underscores and slashes.
+For each of the feeds, the following variables are used to specify how to update
+the feed:
+
+PACKAGES_${feed}_REPO
+    The URL of the git repository to clone (usually ``git://`` or ``http(s)://``)
+
+PACKAGES_${feed}_COMMIT
+    The commit ID of the repository to use
+
+PACKAGES_${feed}_BRANCH
+    Optional: The branch of the repository the given commit ID can be found in.
+    Defaults to the default branch of the repository (usually ``master``)
+
+These variables are always all uppercase, so for an entry ``foo`` in GLUON_SITE_FEEDS,
+the corresponding configuration variables would be ``PACKAGES_FOO_REPO``,
+``PACKAGES_FOO_COMMIT`` and ``PACKAGES_FOO_BRANCH``. Slashes in feed names are
+replaced by underscores to get valid shell variable identifiers.
+
+
 Examples
 --------
 
@@ -392,23 +451,35 @@ site-repos in the wild
 This is a non-exhaustive list of site-repos from various communities:
 
 * `site-ffa <https://github.com/tecff/site-ffa>`_ (Altdorf, Landshut & Umgebung)
+* `site-ffac <https://github.com/ffac/site>`_ (Regio Aachen)
 * `site-ffbs <https://github.com/ffbs/site-ffbs>`_ (Braunschweig)
 * `site-ffhb <https://github.com/FreifunkBremen/gluon-site-ffhb>`_ (Bremen)
 * `site-ffda <https://github.com/freifunk-darmstadt/site-ffda>`_ (Darmstadt)
+* `site-ffeh <https://github.com/freifunk-ehingen/site-ffeh>`_ (Ehingen)
+* `site-fffl <https://github.com/freifunk-flensburg/site-fffl>`_ (Flensburg)
 * `site-ffgoe <https://github.com/freifunk-goettingen/site-ffgoe>`_ (Göttingen)
+* `site-ffgt-rhw <https://github.com/ffgtso/site-ffgt-rhw>`_ (Guetersloh)
 * `site-ffhh <https://github.com/freifunkhamburg/site-ffhh>`_ (Hamburg)
 * `site-ffho <https://git.c3pb.de/freifunk-pb/site-ffho>`_ (Hochstift)
 * `site-ffhgw <https://github.com/lorenzo-greifswald/site-ffhgw>`_ (Greifswald)
+* `site-ffka <https://github.com/ffka/site-ffka>`_ (Karlsruhe)
+* `site-ffki <http://git.freifunk.in-kiel.de/ffki-site/>`_ (Kiel)
+* `site-fflz <https://github.com/freifunk-lausitz/site-fflz>`_ (Lausitz)
 * `site-ffl <https://github.com/freifunk-leipzig/freifunk-gluon-leipzig>`_ (Leipzig)
 * `site-ffhl <https://github.com/freifunk-luebeck/site-ffhl>`_ (Lübeck)
+* `site-fflg <https://github.com/kartenkarsten/site-fflg>`_ (Lüneburg)
 * `site-ffmd <https://github.com/FreifunkMD/site-ffmd>`_ (Magdeburg)
 * `site-ffmwu <https://github.com/freifunk-mwu/site-ffmwu>`_ (Mainz, Wiesbaden & Umgebung)
 * `site-ffmyk <https://github.com/FreifunkMYK/site-ffmyk>`_ (Mayen-Koblenz)
+* `site-ffmo <https://github.com/ffruhr/site-ffmo>`_ (Moers)
+* `site-ffmg <https://github.com/ffruhr/site-ffmg>`_ (Mönchengladbach)
 * `site-ffm <https://github.com/freifunkMUC/site-ffm>`_ (München)
+* `site-ffhmue <https://github.com/Freifunk-Muenden/site-conf>`_ (Münden)
 * `site-ffms <https://github.com/FreiFunkMuenster/site-ffms>`_ (Münsterland)
+* `site-neuss <https://github.com/ffne/site-neuss>`_ (Neuss)
+* `site-ffniers <https://github.com/ffruhr/site-ffniers>`_ (Niersufer)
 * `site-ffnw <https://git.nordwest.freifunk.net/ffnw-firmware/siteconf/tree/master>`_ (Nordwest)
-* `site-ffka <https://github.com/ffka/site-ffka>`_ (Karlsruhe)
-* `site-ffrl <https://github.com/ffrl/sites-ffrl>`_ (Rheinland)
-* `site-ffrg <https://github.com/ffruhr/site-ffruhr>`_ (Ruhrgebiet)
+* `site-ffrgb <https://github.com/ffrgb/site-ffrgb>`_ (Regensburg)
+* `site-ffruhr <https://github.com/ffruhr?utf8=✓&query=site>`_ (Ruhrgebiet, Multi-Communities)
 * `site-ffs <https://github.com/freifunk-stuttgart/site-ffs>`_ (Stuttgart)
 * `site-fftr <https://github.com/freifunktrier/site-fftr>`_ (Trier)
