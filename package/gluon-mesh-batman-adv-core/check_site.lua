@@ -15,6 +15,11 @@ for _, config in ipairs({'wifi24', 'wifi5'}) do
       need_one_of(config .. '.mesh.mcast_rate', rates, false)
       need_boolean(config .. '.mesh.disabled', false)
    end
+
+   if need_table(config .. '.ap', nil, false) then
+      need_string(config .. '.ap.ssid')
+      need_boolean(config .. '.ap.disabled', false)
+   end
 end
 
 need_boolean('mesh_on_wan', false)
@@ -23,3 +28,5 @@ need_boolean('mesh_on_lan', false)
 if need_table('mesh', nil, false) and  need_table('mesh.batman_adv', nil, false) then
    need_number('mesh.batman_adv.gw_sel_class', false)
 end
+
+
