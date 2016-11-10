@@ -10,7 +10,7 @@ define Package/gluon-mesh-babel
   SECTION:=gluon
   CATEGORY:=Gluon
   TITLE:=Babel mesh
-  DEPENDS:=+gluon-core +babeldev +mmfd
+  DEPENDS:=+gluon-core +babeld +mmfd
   PROVIDES:=gluon-mesh-provider
 endef
 
@@ -27,6 +27,7 @@ endef
 
 define Package/gluon-mesh-babel/install
         $(CP) ./files/* $(1)/
+	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
 endef
 
 define Package/gluon-mesh-babel/postinst

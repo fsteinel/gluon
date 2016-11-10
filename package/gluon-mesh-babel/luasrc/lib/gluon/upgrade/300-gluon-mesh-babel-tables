@@ -4,17 +4,17 @@ local uci = require('luci.model.uci').cursor()
 local site = require 'gluon.site_config'
 
 uci:section('network', 'rule6', 'babel_import_lookup',
-  {
-    lookup = 11,
-    priority = 64000,
-  }
+{
+	lookup = 11,
+	priority = 64000,
+}
 )
 
 uci:section('network', 'rule6', 'babel_export_lookup',
-  {
-    lookup = 10,
-    priority = 64100,
-  }
+{
+	lookup = 10,
+	priority = 64100,
+}
 )
 
 uci:save('network')
