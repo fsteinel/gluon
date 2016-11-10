@@ -29,6 +29,7 @@
 #include <iwinfo.h>
 #include <json-c/json.h>
 #include <libgluonutil.h>
+#include <uci.h>
 
 #include <alloca.h>
 #include <glob.h>
@@ -211,11 +212,13 @@ static void add_gateway(struct json_object *obj) {
 
 	while (getline(&line, &len, f) >= 0) {
 		char addr[18];
+		char nexthop[18];
 
-		if (sscanf(line, "=> %17[0-9a-fA-F:]", addr) != 1)
+		if (sscanf(line, "=> %17[0-9a-fA-F:] ( %*u) %17[0-9a-fA-F:]", addr, nexthop) != 2)
 			continue;
 
 		json_object_object_add(obj, "gateway", json_object_new_string(addr));
+		json_object_object_add(obj, "gateway_nexthop", json_object_new_string(nexthop));
 		break;
 	}
 
@@ -468,7 +471,7 @@ static struct json_object * ifnames2addrs(struct json_object *interfaces) {
 }
 
 static struct json_object * get_batadv(void) {
-	FILE *f = fopen("/tmp/batman-adv-visdata/bat0/originators", "r");
+	FILE *f = fopen("/sys/kernel/debug/batman_adv/bat0/originators", "r");
 	if (!f)
 		return NULL;
 
@@ -500,7 +503,9 @@ static struct json_object * get_batadv(void) {
 
 		struct json_object *obj = json_object_new_object();
 		json_object_object_add(obj, "tq", json_object_new_int(tq));
-		json_object_object_add(obj, "lastseen", json_object_new_double(lastseen));
+		struct json_object *jso = json_object_new_double(lastseen);
+		json_object_set_serializer(jso, json_object_double_to_json_string, "%.3f", NULL);
+		json_object_object_add(obj, "lastseen", jso);
 		json_object_object_add(interface, mac1, obj);
 	}
 
