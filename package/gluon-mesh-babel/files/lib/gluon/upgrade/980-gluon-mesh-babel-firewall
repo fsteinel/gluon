@@ -1,0 +1,304 @@
+#!/usr/bin/lua
+
+-- TODO: replace REJECT by DROP. only use REJECT for debugging
+
+local uci = require('luci.model.uci').cursor()
+
+
+uci:delete('firewall', 'wan')
+uci:section('firewall', 'zone', 'wan', {
+        name = 'wan',
+        network = { 'wan','wan6',},
+        input = 'REJECT',    
+        output = 'REJECT',
+        forward = 'REJECT',
+        -- masq = '1'           
+        mtu_fix = '1',
+        conntrack = '1', 
+  }
+)
+uci:section('firewall', 'zone', 'client',
+  {
+    name = 'client',
+    input = 'REJECT',
+    output = 'ACCEPT',
+    forward = 'REJECT',
+    network = 'client',
+    conntrack = '1',
+  }
+)
+uci:section('firewall', 'zone', 'mesh',
+  {
+    name = 'mesh',
+    input = 'REJECT',
+    output = 'ACCEPT',
+    forward = 'REJECT',
+    conntrack = '1',
+-- network is set below dynamically
+  }
+)
+uci:section('firewall', 'zone', 'l3roamd',
+  {
+    name = 'l3roamd',
+    input = 'ACCEPT',
+    output = 'ACCEPT',
+    forward = 'REJECT',
+    device = 'l3roam+'
+  }
+)
+uci:section('firewall', 'zone', 'mmfd',
+  {
+    name = 'mmfd',
+    input = 'REJECT',
+    output = 'accept',
+    forward = 'REJECT',
+    device = 'mmfd+'
+  }
+)
+
+
+-- forwardings and respective rules
+uci:section('firewall', 'forwarding', 'fcc',
+  {
+	  src = 'client',
+	  dest = 'client',
+  }
+)
+
+uci:section('firewall', 'forwarding', 'fcm',
+  {
+	  src = 'client',
+	  dest = 'mesh',
+  }
+)
+
+uci:section('firewall', 'forwarding', 'fmc',
+  {
+	  src = 'mesh',
+	  dest = 'client',
+  }
+)
+
+uci:section('firewall', 'forwarding', 'fmm',
+  {
+	  src = 'mesh',
+	  dest = 'mesh',
+  }
+)
+
+uci:section('firewall', 'forwarding', 'flc',
+  {
+	  src = 'l3roamd',
+	  dest = 'client',
+  }
+)
+
+uci:section('firewall', 'forwarding', 'fcl',
+  {
+	  src = 'client',
+	  dest = 'l3roamd',
+  }
+)
+
+
+
+
+--- rules for wan
+uci:section('firewall', 'rule', 'wan_fastd',
+  {
+    name = 'wan_fastd',
+    dest = 'wan',
+    dest_port = '10000:10010',
+    proto = 'udp',
+    target = 'ACCEPT',
+  }
+)
+
+
+-- rule:DNS
+uci:section('firewall', 'rule', 'wandns',
+  {
+    name = 'wan_dns',
+    dest = 'wan',
+    dest_port = '53',
+    proto = 'tcpudp',
+    target = 'ACCEPT',
+  }
+)
+
+for _, zone in ipairs({ 'wan', 'client', 'mesh' })
+do
+uci:section('firewall', 'rule', zone .. '_ssh',
+  {
+    name =  zone .. '_ssh',
+    src = zone,
+    dest_port = '22',
+    proto = 'tcp',
+    target = 'ACCEPT',
+  }
+)
+end 
+
+-- WAN: DHCP, ICMP, IGMP, ICMP6, DHCP6 is already in default configuration (input/forward) however output still needs to be set due to the tighter outbound policy
+uci:section('firewall','rule', 'wan_dhcp',
+{       name = 'Allow-DHCP',
+        dest = 'wan',
+        proto = 'udp',
+        dest_port = '67:68',
+        target = 'ACCEPT',
+        family = 'ipv4',
+}
+)
+
+
+
+-- allow icmp in/out/forward on all relevant zones
+for _, zone in ipairs ({ 'mesh', 'wan', 'client' } )
+do
+uci:section('firewall','rule',  zone .. 'ICMPv6in',
+{       name = 'Allow-ICMPv6-Input',
+        src = zone, 
+        proto = 'icmp',
+	icmp_type = {'echo-request', 'echo-reply', 'destination-unreachable', 'packet-too-big', 'time-exceeded', 'bad-header', 'unknown-header-type', 'router-solicitation', 'neighbour-solicitation', 'router-advertisement', 'neighbour-advertisement', },
+        limit = '1000/sec',
+        family = 'ipv6',
+        target = 'ACCEPT',
+ }
+)
+
+uci:section('firewall','rule', zone .. 'ICMPv6out',
+{       name = 'Allow-ICMPv6-OUTPUT',
+        dest = 'wan',
+        proto = 'icmp',
+        icmp_type = {'echo-request', 'echo-reply', 'destination-unreachable', 'packet-too-big', 'time-exceeded', 'bad-header', 'unknown-header-type', 'router-solicitation', 'neighbour-solicitation', 'router-advertisement', 'neighbour-advertisement' },
+        limit = '1000/sec',
+        family = 'ipv6',
+        target = 'ACCEPT',
+ }
+)                                               
+
+uci:section('firewall','rule', zone ..'ICMPv6forward',
+{       name = 'Allow-ICMPv6-Forward',
+        src = zone,
+        dest = '*',
+        proto = 'icmp',
+        icmp_type  = { 'echo-request', 'echo-reply', 'destination-unreachable', 'packet-too-big', 'time-exceeded', 'bad-header', 'unknown-header-type', },
+        limit = '1000/sec',
+        family = 'ipv6',
+        target = 'ACCEPT',
+}
+)
+end
+
+-- dns-rule for forwarding dns queries from fastd to the local dnsmasq instance that has wan-acces is handled by gluon-mesh-vpn-fastd package
+
+
+---- rules mesh
+-- this will contain iptables rules run by the setup-script for interfaces having proto = gluon_mesh
+uci:section('firewall', 'include', 'mesh_forwards',
+  {
+           path = '/tmp/liverules.iptables',
+  }
+)
+
+
+for _, zone in ipairs({'mesh','client'}) do
+uci:section('firewall', 'rule', zone .. 'http',
+  {
+    name = zone .. 'http',
+    src = zone,
+    dest_port = '80',
+    proto = 'tcp',
+    target = 'ACCEPT',
+  }
+)
+uci:section('firewall', 'rule', zone .. 'dns',
+  {
+    name = zone .. 'dns',
+    src = zone,
+    dest_port = '53',
+    proto = 'tcpudp',
+    target = 'ACCEPT',
+  }
+)
+uci:section('firewall', 'rule', zone .. 'ntp',
+  {
+    name = zone .. 'ntp',
+    src = zone,
+    dest_port = '123',
+    proto = 'udp',
+    target = 'ACCEPT',
+  }
+)
+end
+
+uci:section('firewall', 'rule',  'mesh_l3roamd',
+  {
+    name = 'mesh_l3roamd',
+    src = 'mesh',
+    dest_port = '5523',
+    proto = 'udp',
+    target = 'ACCEPT',
+  }
+)
+
+uci:section('firewall', 'rule',  'mesh_respondd',
+  {
+    name = 'mesh_respondd',
+    src = 'mesh',
+    src_ip = 'fe80::/64',
+    dest_port = '1001',
+    proto = 'udp',
+    target = 'ACCEPT',
+  }
+)
+
+uci:section('firewall', 'rule', 'mesh_babel',
+  {
+    name = 'mesh_babel',
+    src = 'mesh',
+    src_ip = 'fe80::/64',
+    dest_port = '6696',
+    proto = 'udp',
+    target = 'ACCEPT',
+  }
+)
+
+-- TODO: this is too static and should be done non-persistently at boot-time
+-- return table with all interfaces that are running proto = gluon_mesh
+function find_meshes()
+  local nets={}
+
+  uci:foreach('network', 'interface',
+    function(s)
+        local section= s['.name']
+        if ( uci:get('network',section,'proto' ) == 'gluon_mesh' )
+        then
+                table.insert(nets, section )
+        end
+    end
+  )
+return nets
+end
+
+-- find mesh firewall section
+function find_fw(zone)
+  local retval=""
+  uci:foreach('firewall','zone',
+    function(s)
+      local section=s['.name']
+        if ( uci:get('firewall',section,'name') == zone)
+        then
+          retval=section
+        return false
+        end
+    end
+  )
+  return retval
+end
+
+
+meshsection=find_fw('mesh')
+uci:set_list('firewall',meshsection, 'network', find_meshes() )
+
+uci:save('firewall')
