@@ -19,7 +19,6 @@ need_string 'timezone'
 
 need_string_array('ntp_servers', false)
 
-need_string_match('prefix4', '^%d+.%d+.%d+.%d+/%d+$')
 need_string_match('prefix6', '^[%x:]+/%d+$')
 
 
@@ -28,5 +27,15 @@ for _, config in ipairs({'wifi24', 'wifi5'}) do
     need_string('regdom') -- regdom is only required when wifi24 or wifi5 is configured
 
     need_number(config .. '.channel')
+
+    local rates = {1000, 2000, 5500, 6000, 9000, 11000, 12000, 18000, 24000, 36000, 48000, 54000}
+    local supported_rates = need_array_of(config .. '.supported_rates', rates, false)
+    if supported_rates then
+      need_array_of(config .. '.basic_rate', supported_rates, true)
+    else
+      need_array_of(config .. '.basic_rate', rates, false)
+    end
   end
 end
+
+need_boolean('poe_passthrough', false)

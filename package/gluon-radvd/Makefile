@@ -5,13 +5,14 @@ PKG_VERSION:=3
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
-include $(INCLUDE_DIR)/package.mk
+include $(GLUONDIR)/include/package.mk
+
 
 define Package/gluon-radvd
   SECTION:=gluon
   CATEGORY:=Gluon
   TITLE:=Advertise an IPv6 prefix from the node
-  DEPENDS:=+gluon-core +gluon-ebtables +gluon-mesh-batman-adv +uradvd
+  DEPENDS:=+gluon-core +uradvd
 endef
 
 define Package/gluon-radvd/description
@@ -26,10 +27,12 @@ define Build/Configure
 endef
 
 define Build/Compile
+	$(call GluonSrcDiet,./luasrc,$(PKG_BUILD_DIR)/luadest/)
 endef
 
 define Package/gluon-radvd/install
 	$(CP) ./files/* $(1)/
+	$(CP) $(PKG_BUILD_DIR)/luadest/* $(1)/
 endef
 
 $(eval $(call BuildPackage,gluon-radvd))
