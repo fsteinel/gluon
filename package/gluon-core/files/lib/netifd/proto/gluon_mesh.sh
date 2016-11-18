@@ -6,6 +6,9 @@ init_proto "$@"
 
 proto_gluon_mesh_init_config() {
 	proto_config_add_boolean fixed_mtu
+	proto_add_data
+	json_add_string zone gluon_mesh
+	proto_close_data
 	proto_config_add_boolean transitive
 }
 
