@@ -66,11 +66,9 @@ $(eval $(call GluonModel,TLWR743,tl-wr743nd-v2,tp-link-tl-wr743n-nd-v2))
 $(eval $(call GluonProfile,TLWA801))
 $(eval $(call GluonModel,TLWA801,tl-wa801nd-v1,tp-link-tl-wa801n-nd-v1))
 $(eval $(call GluonModel,TLWA801,tl-wa801nd-v2,tp-link-tl-wa801n-nd-v2))
-ifneq ($(BROKEN),)
-$(eval $(call GluonModel,TLWA801,tl-wa801nd-v3,tp-link-tl-wa801n-nd-v3)) # BROKEN: untested
-endif
+$(eval $(call GluonModel,TLWA801,tl-wa801nd-v3,tp-link-tl-wa801n-nd-v3))
 
-# TL-WR841N/ND v3, v5, v7, v8, v9, v10, v11
+# TL-WR841N/ND v3, v5, v7, v8, v9, v10
 $(eval $(call GluonProfile,TLWR841))
 $(eval $(call GluonModel,TLWR841,tl-wr841nd-v3,tp-link-tl-wr841n-nd-v3))
 $(eval $(call GluonModel,TLWR841,tl-wr841nd-v5,tp-link-tl-wr841n-nd-v5))
@@ -78,7 +76,11 @@ $(eval $(call GluonModel,TLWR841,tl-wr841nd-v7,tp-link-tl-wr841n-nd-v7))
 $(eval $(call GluonModel,TLWR841,tl-wr841n-v8,tp-link-tl-wr841n-nd-v8))
 $(eval $(call GluonModel,TLWR841,tl-wr841n-v9,tp-link-tl-wr841n-nd-v9))
 $(eval $(call GluonModel,TLWR841,tl-wr841n-v10,tp-link-tl-wr841n-nd-v10))
-$(eval $(call GluonModel,TLWR841,tl-wr841n-v11,tp-link-tl-wr841n-nd-v11))
+
+# TL-WR841N/ND v11
+$(eval $(call GluonProfile,TLWR841_REGION,,TLWR841))
+$(eval $(call GluonModel,TLWR841_REGION,tl-wr841n-v11,tp-link-tl-wr841n-nd-v11))
+$(eval $(call GluonProfileFactorySuffix,TLWR841_REGION,-squashfs-factory$(if $(GLUON_REGION),-$(GLUON_REGION)),.bin))
 
 # TL-WR842N/ND v1, v2
 $(eval $(call GluonProfile,TLWR842))
@@ -90,7 +92,7 @@ $(eval $(call GluonModel,TLWR842,tl-wr842n-v3,tp-link-tl-wr842n-nd-v3))
 $(eval $(call GluonProfile,TLWR843))
 $(eval $(call GluonModel,TLWR843,tl-wr843nd-v1,tp-link-tl-wr843n-nd-v1))
 
-# TL-WR941N/ND v2, v3, v4, v5, v6; TL-WR940N/ND v1, v2, v3
+# TL-WR941N/ND v2, v3, v4, v5, v6; TL-WR940N/ND v1, v2, v3, v4
 $(eval $(call GluonProfile,TLWR941))
 $(eval $(call GluonModel,TLWR941,tl-wr941nd-v2,tp-link-tl-wr941n-nd-v2))
 $(eval $(call GluonModel,TLWR941,tl-wr941nd-v3,tp-link-tl-wr941n-nd-v3))
@@ -101,6 +103,10 @@ $(eval $(call GluonModel,TLWR941,tl-wr941nd-v6,tp-link-tl-wr941n-nd-v6))
 $(eval $(call GluonModelAlias,TLWR941,tp-link-tl-wr941n-nd-v4,tp-link-tl-wr940n-nd-v1))
 $(eval $(call GluonModelAlias,TLWR941,tp-link-tl-wr941n-nd-v5,tp-link-tl-wr940n-nd-v2))
 $(eval $(call GluonModelAlias,TLWR941,tp-link-tl-wr941n-nd-v6,tp-link-tl-wr940n-nd-v3))
+
+$(eval $(call GluonProfile,TLWR940_REGION,,TLWR941))
+$(eval $(call GluonModel,TLWR940_REGION,tl-wr940n-v4,tp-link-tl-wr940n-v4))
+$(eval $(call GluonProfileFactorySuffix,TLWR940_REGION,-squashfs-factory$(if $(GLUON_REGION),-$(GLUON_REGION)),.bin))
 
 # TL-WR1043N/ND v1, v2, v3
 $(eval $(call GluonProfile,TLWR1043))
