@@ -9,16 +9,24 @@ io.write("Content-type: application/json\n\n")
 
 list = util.exec('batctl if')
 
-interfaces = {}
+
+local uconn = ubus.connect()
+if not uconn then
+	error("Failed to connect to ubusd")
+end
+interfaces = util.get_mesh_devices(uconn)
+uconn.close()
+
+
 
 for _, line in ipairs(util.split(list)) do
-  ifname = line:match('^(.-):')
-  if ifname ~= nil then
-    pcall(function()
-      local address = util.trim(fs.readfile('/sys/class/net/' .. ifname .. '/address'))
-      interfaces[ifname] = { address = address }
-    end)
-  end
+	ifname = line:match('^(.-):')
+	if ifname ~= nil then
+		pcall(function()
+			local address = util.trim(fs.readfile('/sys/class/net/' .. ifname .. '/address'))
+			interfaces[ifname] = { address = address }
+		end)
+	end
 end
 
 io.write(json.stringify(interfaces))
