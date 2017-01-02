@@ -1,0 +1,33 @@
+#!/usr/bin/lua
+local uci = require('luci.model.uci').cursor()
+local site = require 'gluon.site_config'
+
+uci:set('fastd', 'n2n_vpn','fastd')
+uci:set('fastd', 'n2n_vpn','method', site.fastd_mesh_vpn.methods)
+uci:set('fastd', 'n2n_vpn','mtu', site.fastd_mesh_vpn.mtu)
+uci:set('fastd', 'n2n_vpn','group', 'gluon-fastd')
+uci:set('fastd', 'n2n_vpn','syslog_level', 'verbose')
+uci:set('fastd', 'n2n_vpn','mode', 'tap')
+uci:set('fastd', 'n2n_vpn','interface','n2n-vpn')
+
+-- TODO: should we use secure handshakes? How?
+uci:set('fastd', 'n2n_vpn','secure_handshakes','0')
+
+-- TODO: should we use the same secret like for mesh_vpn?
+uci:set('fastd', 'n2n_vpn','secret', 'generate')
+
+local e = uci:get('fastd', 'mesh_vpn', 'enabled')
+if not e then
+	e = '0'
+end
+
+uci:set('fastd', 'n2n_vpn','enabled', e)
+
+uci:section('fastd', 'peer_group', 'n2n_vpn',
+{
+	enabled = e,
+	net = 'mesh_vpn',
+} 
+)
+
+uci:save('fastd')
