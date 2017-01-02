@@ -27,7 +27,7 @@ uci:section('fastd', 'peer_group', 'n2n_vpn',
 {
 	enabled = e,
 	net = 'mesh_vpn',
-} 
+}
 )
 
 uci:save('fastd')
