@@ -14,7 +14,7 @@ PKG_CONFIG_DEPENDS += $(GLUON_I18N_CONFIG)
 define Package/gluon-luci-mesh-vpn-fastd
   SECTION:=gluon
   CATEGORY:=Gluon
-  TITLE:=Luci module to enable and disable encryption for the mesh VPN
+  TITLE:=Luci module to configure the mesh VPN
   DEPENDS:=+gluon-luci-admin +gluon-mesh-vpn-fastd
 endef
 
