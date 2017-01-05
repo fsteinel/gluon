@@ -85,7 +85,11 @@ end
 s = f:section(SimpleSection, nil, nil)
 
 o = s:option(Flag, "mesh_vxlan", translate("Encapsulate mesh into vxlan"))
+<<<<<<< HEAD
 o.default = uci:get_bool("network", 'mesh_vxlan' , "active") and o.enabled or o.disabled
+=======
+o.default = uci:get_bool("network", uci:get_first("network","vxlan") , "active") and o.enabled or o.disabled
+>>>>>>> edaeffe90961f932631d8c6e4cd4cee3b135889f
 o.rmempty = false
 
 o = s:option(Flag, "mesh_wan", translate("Enable meshing on the WAN interface"))
@@ -97,6 +101,10 @@ if sysconfig.lan_ifname then
 	o.default = uci:get_bool("network", "mesh_lan", "auto") and o.enabled or o.disabled
 	o.rmempty = false
 end
+
+
+
+
 
 if uci:get('system', 'gpio_switch_poe_passthrough') then
 	s = f:section(SimpleSection, nil, nil)
@@ -152,8 +160,11 @@ function f.handle(self, state, data)
 		end
 	end
 
+<<<<<<< HEAD
 	-- TODO: add IP configuration for br-client and mesh_lan
 
+=======
+>>>>>>> edaeffe90961f932631d8c6e4cd4cee3b135889f
 	uci:save("network")
 	uci:commit("network")
 
