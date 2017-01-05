@@ -85,7 +85,7 @@ end
 s = f:section(SimpleSection, nil, nil)
 
 o = s:option(Flag, "mesh_vxlan", translate("Encapsulate mesh into vxlan"))
-o.default = uci:get_bool("network", uci:get_first("network","vxlan") , "active") and o.enabled or o.disabled
+o.default = uci:get_bool("network", 'mesh_vxlan' , "active") and o.enabled or o.disabled
 o.rmempty = false
 
 o = s:option(Flag, "mesh_wan", translate("Enable meshing on the WAN interface"))
@@ -97,10 +97,6 @@ if sysconfig.lan_ifname then
 	o.default = uci:get_bool("network", "mesh_lan", "auto") and o.enabled or o.disabled
 	o.rmempty = false
 end
-
-
-
-
 
 if uci:get('system', 'gpio_switch_poe_passthrough') then
 	s = f:section(SimpleSection, nil, nil)
@@ -116,22 +112,30 @@ function f.handle(self, state, data)
 		uci:set("network", "wan", "ipaddr", data.ipv4_addr:trim())
 		uci:set("network", "wan", "netmask", data.ipv4_netmask:trim())
 		uci:set("network", "wan", "gateway", data.ipv4_gateway:trim())
+		uci:set("network", "mesh_wan", "ipaddr", data.ipv4_addr:trim())
+		uci:set("network", "mesh_wan", "netmask", data.ipv4_netmask:trim())
+		uci:set("network", "mesh_wan", "gateway", data.ipv4_gateway:trim())
 	else
-		uci:delete("network", "wan", "ipaddr")
-		uci:delete("network", "wan", "netmask")
-		uci:delete("network", "wan", "gateway")
+		uci:delete("network", "mesh_wan", "ipaddr")
+		uci:delete("network", "mesh_wan", "netmask")
+		uci:delete("network", "mesh_wan", "gateway")
 	end
 
 	uci:set("network", "wan6", "proto", data.ipv6)
 	if data.ipv6 == "static" then
 		uci:set("network", "wan6", "ip6addr", data.ipv6_addr:trim())
 		uci:set("network", "wan6", "ip6gw", data.ipv6_gateway:trim())
+		uci:set("network", "mesh_wan", "ip6addr", data.ipv6_addr:trim())
+		uci:set("network", "mesh_wan", "ip6gw", data.ipv6_gateway:trim())
 	else
 		uci:delete("network", "wan6", "ip6addr")
 		uci:delete("network", "wan6", "ip6gw")
+		uci:delete("network", "mesh_wan", "ip6addr")
+		uci:delete("network", "mesh_wan", "ip6gw")
 	end
 
 	uci:set("network", "mesh_wan", "auto", data.mesh_wan)
+	uci:set("network", "mesh_vxlan", "active", data.mesh_vxlan) 
 
 	if sysconfig.lan_ifname then
 		uci:set("network", "mesh_lan", "auto", data.mesh_lan)
@@ -147,6 +151,8 @@ function f.handle(self, state, data)
 		doit(uci, "network", "client", "ifname", lanif)
 		end
 	end
+
+	-- TODO: add IP configuration for br-client and mesh_lan
 
 	uci:save("network")
 	uci:commit("network")
