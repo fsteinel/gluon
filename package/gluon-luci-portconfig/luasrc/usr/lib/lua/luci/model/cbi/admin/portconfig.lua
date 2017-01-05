@@ -160,11 +160,8 @@ function f.handle(self, state, data)
 		end
 	end
 
-<<<<<<< HEAD
 	-- TODO: add IP configuration for br-client and mesh_lan
 
-=======
->>>>>>> edaeffe90961f932631d8c6e4cd4cee3b135889f
 	uci:save("network")
 	uci:commit("network")
 
