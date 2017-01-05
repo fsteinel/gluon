@@ -11,6 +11,9 @@ if not sysconfig.lan_ifname then
   os.exit(0)
 end
 
+-- TODO: wenn vxlan aktiv ist, dann hier ein vxlan draufsetzen und nicht prot =
+-- gluon-mesh
+--
 uci:section('network', 'interface', 'mesh_lan', {
   ifname        = sysconfig.lan_ifname,
   type          = 'bridge',
