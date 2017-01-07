@@ -66,9 +66,10 @@ else
 	o.default = 'security'
 end
 
-
-
-s = f:section(SimpleSection, nil, translate('Your node can connect to other nodes directly.'))
+s = f:section(SimpleSection, nil, translate('Your node can connect to other nodes directly. ' 
+.. 'One of the participating nodes of a Node-to-Node connection has to be configured with a fixed fastd port.'
+.. 'This port then has to be forwarded in the local home router which the node is using for Mesh VPN.'
+))
 
 o = s:option(Flag, "enabled", translate("Enabled"))
 o.default = uci:get_bool(config, groupname, "enabled") and o.enabled or o.disabled
@@ -78,22 +79,18 @@ o = s:option(DynamicList, "hostname", translate("Remote"), translate("Format") .
 o:write(nil, getPeerStrings())
 o:depends("enabled", '1')
 
-
-s = f:section(SimpleSection, nil, translate(
-'One of the participating nodes of a P2P connection has to be configured with a fixed fastd port.'
-..'This port then has to be forwarded in the local home router which the node is using for Mesh VPN.'
-))
-o:depends("enabled", '1')
-
 o = s:option(Flag, "fixedport", translate("Fixed VPN Port"))
 o.default = (uci:get(config, vpnname, "bind")) and o.enabled or o.disabled
+o:depends("enabled", '1')
 o.rmempty = false
 
-p = uci:get(config, vpnname, "bind")
+p = uci:get(config, vpnname, "bind") or '0'
 x = p:find(":") or (#p + 1)
 
 o = s:option(Value, "localport", translate("Port"))
-o:write('', p:sub(x+1))
+o.default = p:sub(x+1) or 10000
+o.datatype = "uinteger"
+o.rmempty = false
 o:depends("fixedport", '1')
 
 function f.handle(self, state, data)
@@ -142,8 +139,9 @@ function f.handle(self, state, data)
 			end
 		end
 
-		if data.fixedport == '1' and #data.localport > 0 then
-			-- TODO: add sanity checks
+		uci:set(config, groupname, "enabled", data.enabled)
+
+		if data.fixedport == '1' and data.localport and tonumber(data.localport) > 0 and tonumber(data.localport ) <= 65535 then
 			uci:set(config, vpnname, 'bind', 'any:'..data.localport)
 		else
 			uci:delete(config, vpnname, 'bind')
