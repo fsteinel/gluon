@@ -160,6 +160,9 @@ static struct json_object * get_mesh_ifs() {
 	struct json_object *other = json_object_new_array();
 
 	struct uci_package *p;
+	struct uci_context *ctx = uci_alloc_context();
+	ctx->flags &= ~UCI_FLAG_STRICT;
+
 	if (uci_load(ctx, "network", &p))
 		goto end;
 
@@ -395,11 +398,102 @@ end:
 	uci_free_context(ctx);
 }
 
+struct babeldata babeld_parse_line(struct context *ctx, char *line) {
+	char *action = NULL;
+	char *address_str = NULL;
+	char *ifname = NULL;
+	int reach, cost;
+
+	int n = sscanf(line, "%ms neighbour %*x address %ms if %ms "
+			"reach %x rxcost %*d txcost %*d cost %d",
+			&action, &address_str, &ifname, &reach, &cost);
+
+	if (n != 5)
+		goto end;
+
+	struct in6_addr address;
+
+	if (inet_pton(AF_INET6, address_str, &address) != 1)
+		// TODO print warning
+		goto end;
+
+end:
+	free(action);
+	free(address_str);
+	free(ifname);
+}
+
 static void add_gateway(struct json_object *obj) {
 	// TODO: replace shell with some sane C-code and take multiple gateways into consideration if there is more than 1 concurrent vpn connection
-	const char *ipaddr = get_line_from_run("exec sh -c 'ip -6 r s t 0 |grep mesh-vpn|cut -d\" \" -f3|sort -u");
+	// const char *ipaddr = get_line_from_run("exec sh -c 'ip -6 r s t 0 |grep mesh-vpn|cut -d\" \" -f3|sort -u");
+	/*
+	   int port=33123;
+	   char buffer[255];
+	   int sockfd = socket(AF_INET6, SOCK_STREAM,0);
+	   if (sockfd <0 )
+	   {
+	   printf("error while opening socket for babeld-communication");
+	   return;
+	   }
 
-	json_object_add(obj, "gateway", ipaddr);
+	   struct hostent *server = gethostbyname("::1")
+	   struct socketaddr_in serv_addr;
+	   bzero((char*) &serv_addr,sizeof(serv_addr));
+	   serv_addr.sin_family = AF_INET6;
+	   bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+	   serv_addr.sin_port = htons(port);
+	   if ( connect(sockfd, (structsockaddr *)&serv_addr, sizeof(serv_addr)) < 1 )
+	   {
+	   printf("error connecting to babel\n");
+	   goto end;
+	   }
+
+	   if (write(sockfd, "dump", 4) < 0)
+	   {
+	   printf("error writing to babel socket");
+	   goto end;
+	   }
+
+	   while (1)
+	   {
+	   ssize_t n = read(sockfd, buffer, 255);
+	   if (n>0) {
+	   line = strsep(&buffer, "\n");
+	   if (buffer == NULL)
+	   break;	// no more lines found 
+	   babeld_parse_line(line);
+	   }
+	   }
+	// SNIP
+	FILE *fp;
+	char *line = NULL;
+	size_t len = 0;
+
+	fp = open(command, "r");
+
+	if (fp != NULL) {
+	ssize_t r = getline(&line, &len, fp);
+	if (r >= 0) { 
+	len = strlen(line);
+
+	if (len && line[len-1] == '\n')
+	line[len-1] = 0;
+	}
+	else {
+	free(line);
+	line = NULL;
+	}
+
+	pclose(fp);
+	}
+	return line;
+
+
+	// stop paste
+	*/
+	json_object_object_add(obj, "gateway", ipaddr);
+end:
+	free(sockfd);
 }
 
 static struct json_object * get_clients(void) {
@@ -457,11 +551,10 @@ static struct json_object * get_babel(void) {
 	int ret;
 
 	struct json_object *interfaces;
-	interfaces = json_object_new_array()
-	
+	interfaces = json_object_new_array();
 	if (!interfaces)
 		return NULL;
-	
+
 	struct uci_package *p;
 	if (uci_load(ctx, "network", &p))
 		goto end;
@@ -479,7 +572,7 @@ static struct json_object * get_babel(void) {
 		const char *ifname = uci_lookup_option_string(ctx, s, "ifname");
 		if (!ifname)
 			continue;
-		json_object_array_add(interfaces, ifname)
+		json_object_object_add(interfaces, "interface", ifname);
 	}
 
 end:
@@ -564,7 +657,6 @@ static struct json_object * get_wifi(void) {
 
 end:    
 	uci_free_context(ctx);
-
 	return ret;
 }
 
