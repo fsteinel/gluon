@@ -416,16 +416,16 @@ void handle_neighbor_addgw(struct json_object *obj, char *line) {
 		goto end;
 
 	struct in6_addr address;
-
 	if (inet_pton(AF_INET6, address_str, &address) != 1)
 	{
 		fprintf(stderr, "babeld-parser error: could not convert babal data to ipv6 address\n");
-		goto end;
+		address_str=malloc("12");
+		address_str="parse error\0";
 	}
-
+	
 	if ( ! strncmp(ifname, VPN_INTERFACE, sizeof(VPN_INTERFACE) -1 )) 
 	{
-		json_object_object_add(obj, "gateway", ipaddr);
+		json_object_object_add(obj, "gateway", address_str);
 	}
 
 end:
@@ -461,7 +461,7 @@ void process_line_addgw(char *lineptr, struct json_object *obj){
 	    */
 }
 
-void input_pump(int fd, struct json_object obj*, void (*lineprocessor)(char*)(struct json_object*)) {
+void input_pump(int fd, struct json_object* obj, void (*lineprocessor)(char*, struct json_object*)) {
 	char inbuf[SOCKET_INPUT_BUFFER_SIZE];
 	size_t inbuf_used = 0;
 	size_t inbuf_remain = 0;
@@ -507,7 +507,7 @@ void input_pump(int fd, struct json_object obj*, void (*lineprocessor)(char*)(st
 }
 
 
-void readbabeldata(struct json_object *obj, void (*lineprocessor)(char*)(struct json_object*))
+void readbabeldata(struct json_object *obj, void (*lineprocessor)(char*, struct json_object*))
 {
 	int sockfd ;
 
@@ -538,12 +538,15 @@ void readbabeldata(struct json_object *obj, void (*lineprocessor)(char*)(struct 
 }
 
 
+int get_all_client_count() {
+// 
+}
 static struct json_object * get_clients(void) {
 	size_t wifi24 = 0, wifi5 = 0;
 
 	count_stations(&wifi24, &wifi5);
 
-	// TODO: replace shell with something sensible
+	// TODO: replace shell with something sensible implementation in get_all_client_count()
 	size_t total = atoi(get_line_from_run("exec sh -c 'ip -6 r s t 0 |grep 2a06|grep -v mesh-vpn|grep -v unreachable|grep -v /|wc -l'"));
 	total--; 
 
@@ -616,7 +619,7 @@ static struct json_object * get_babel(void) {
 		const char *ifname = uci_lookup_option_string(ctx, s, "ifname");
 		if (!ifname)
 			continue;
-		json_object_object_add(interfaces, "interface", ifname);
+		json_object_object_add(interfaces, "interface", json_object_new_string(ifname));
 	}
 
 end:
