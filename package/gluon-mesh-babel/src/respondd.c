@@ -423,24 +423,24 @@ void handle_neighbor_addgw(struct json_object *obj, char *line) {
 		goto end;
 	}
 
-	if ( ! strncmp(ifname, VPN_INTERFACE, sizeof(VPN_INTERFACE) -1 ) 
+	if ( ! strncmp(ifname, VPN_INTERFACE, sizeof(VPN_INTERFACE) -1 )) 
 	{
 		json_object_object_add(obj, "gateway", ipaddr);
 	}
 
 end:
-free(action);
-free(address_str);
-free(ifname);
+	free(action);
+	free(address_str);
+	free(ifname);
 }
 void handle_xroute(char *lineptr) {
-fprintf(stderr,"handle xroute (unimplemented): %s\n", lineptr);
+	fprintf(stderr,"handle xroute (unimplemented): %s\n", lineptr);
 }
 void handle_route(char *lineptr) {
-fprintf(stderr,"handle route (unimplemented): %s\n", lineptr);
+	fprintf(stderr,"handle route (unimplemented): %s\n", lineptr);
 }
 void handle_interface(char *lineptr) {
-fprintf(stderr, "handle interface (unimplemented): %s\n", lineptr);
+	fprintf(stderr, "handle interface (unimplemented): %s\n", lineptr);
 }
 
 void process_line_addgw(char *lineptr, struct json_object *obj){
