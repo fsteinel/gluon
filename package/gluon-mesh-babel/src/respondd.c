@@ -461,7 +461,6 @@ void process_line_addgw(char *lineptr, struct json_object *obj){
 	    */
 }
 
-
 void input_pump(int fd, struct json_object obj*, void (*lineprocessor)(char*)(struct json_object*)) {
 	char inbuf[SOCKET_INPUT_BUFFER_SIZE];
 	size_t inbuf_used = 0;
@@ -507,41 +506,35 @@ void input_pump(int fd, struct json_object obj*, void (*lineprocessor)(char*)(st
 	}
 }
 
-readbabeldata(struct json_object *obj, void (*lineprocessor)(char*)(struct json_object*))
+
+void readbabeldata(struct json_object *obj, void (*lineprocessor)(char*)(struct json_object*))
 {
-	int sockfd, port;
-
-	if (argc < 3) {
-		fprintf(stderr,"usage %s hostname port\n", argv[0]);
-		exit(0);
-	}
-
-	port = atoi(BABEL_PORT);
+	int sockfd ;
 
 	struct sockaddr_in6 serv_addr = {
 		.sin6_family = AF_INET6,
-		.sin6_port = htons(port)
+		.sin6_port = htons(BABEL_PORT)
 	};
 
 	sockfd = socket(AF_INET6, SOCK_STREAM, 0);
 	if (sockfd < 0) {
 		perror("ERROR opening socket");
-		return 1;
+		return;
 	}
 	if (inet_pton(AF_INET6, "::1", &serv_addr.sin6_addr.s6_addr) != 1)
 	{
 		perror("Cannot parse hostname");
-		return 1;
+		return;
 	}
 	if (connect(sockfd, (const struct sockaddr *)&serv_addr, sizeof(serv_addr)) != 0) {
 		perror("Can not connect to babeld");
-		return 1;
+		return;
 	}
 
 	input_pump(sockfd, obj, lineprocessor);
 
 	close(sockfd);
-	return 0;
+	return;
 }
 
 
@@ -571,7 +564,7 @@ static struct json_object * respondd_provider_statistics(void) {
 	json_object_object_add(ret, "traffic", get_traffic());
 
 	// add gateway(s)
-	readbabeldata(obj, process_line_addgw);
+	readbabeldata(ret, process_line_addgw);
 
 	return ret;
 }
@@ -598,8 +591,6 @@ static struct json_object * ifnames2addrs(struct json_object *interfaces) {
 }
 
 static struct json_object * get_babel(void) {
-	int ret;
-
 	struct uci_context *ctx = uci_alloc_context();
 	ctx->flags &= ~UCI_FLAG_STRICT;
 
