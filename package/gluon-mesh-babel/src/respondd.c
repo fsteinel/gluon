@@ -51,12 +51,16 @@
 #include <linux/if_addr.h>
 #include <linux/sockios.h>
 
-
+#include <netdb.h>
+#include "errno.h"
 
 #define _STRINGIFY(s) #s
 #define STRINGIFY(s) _STRINGIFY(s)
 #include <stdlib.h>
 
+#define SOCKET_INPUT_BUFFER_SIZE 255
+#define BABEL_PORT 33123
+#define VPN_INTERFACE "mesh-vpn"
 
 static char*  get_line_from_run(char* command) {
 
@@ -398,103 +402,148 @@ end:
 	uci_free_context(ctx);
 }
 
-struct babeldata babeld_parse_line(struct context *ctx, char *line) {
+
+void handle_neighbor_addgw(struct json_object *obj, char *line) {
 	char *action = NULL;
 	char *address_str = NULL;
 	char *ifname = NULL;
-	int reach, cost;
-
+	int reach, cost,rxcost, txcost;
 	int n = sscanf(line, "%ms neighbour %*x address %ms if %ms "
-			"reach %x rxcost %*d txcost %*d cost %d",
-			&action, &address_str, &ifname, &reach, &cost);
+			"reach %x rxcost %d txcost %d cost %d",
+			&action, &address_str, &ifname, &reach, &rxcost, &txcost, &cost);
 
-	if (n != 5)
+	if (n != 7)
 		goto end;
 
 	struct in6_addr address;
 
 	if (inet_pton(AF_INET6, address_str, &address) != 1)
-		// TODO print warning
+	{
+		fprintf(stderr, "babeld-parser error: could not convert babal data to ipv6 address\n");
 		goto end;
+	}
+
+	if ( ! strncmp(ifname, VPN_INTERFACE, sizeof(VPN_INTERFACE) -1 ) 
+	{
+		json_object_object_add(obj, "gateway", ipaddr);
+	}
 
 end:
-	free(action);
-	free(address_str);
-	free(ifname);
+free(action);
+free(address_str);
+free(ifname);
+}
+void handle_xroute(char *lineptr) {
+fprintf(stderr,"handle xroute (unimplemented): %s\n", lineptr);
+}
+void handle_route(char *lineptr) {
+fprintf(stderr,"handle route (unimplemented): %s\n", lineptr);
+}
+void handle_interface(char *lineptr) {
+fprintf(stderr, "handle interface (unimplemented): %s\n", lineptr);
 }
 
-static void add_gateway(struct json_object *obj) {
-	// TODO: replace shell with some sane C-code and take multiple gateways into consideration if there is more than 1 concurrent vpn connection
-	// const char *ipaddr = get_line_from_run("exec sh -c 'ip -6 r s t 0 |grep mesh-vpn|cut -d\" \" -f3|sort -u");
-	/*
-	   int port=33123;
-	   char buffer[255];
-	   int sockfd = socket(AF_INET6, SOCK_STREAM,0);
-	   if (sockfd <0 )
-	   {
-	   printf("error while opening socket for babeld-communication");
-	   return;
-	   }
-
-	   struct hostent *server = gethostbyname("::1")
-	   struct socketaddr_in serv_addr;
-	   bzero((char*) &serv_addr,sizeof(serv_addr));
-	   serv_addr.sin_family = AF_INET6;
-	   bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-	   serv_addr.sin_port = htons(port);
-	   if ( connect(sockfd, (structsockaddr *)&serv_addr, sizeof(serv_addr)) < 1 )
-	   {
-	   printf("error connecting to babel\n");
-	   goto end;
-	   }
-
-	   if (write(sockfd, "dump", 4) < 0)
-	   {
-	   printf("error writing to babel socket");
-	   goto end;
-	   }
-
-	   while (1)
-	   {
-	   ssize_t n = read(sockfd, buffer, 255);
-	   if (n>0) {
-	   line = strsep(&buffer, "\n");
-	   if (buffer == NULL)
-	   break;	// no more lines found 
-	   babeld_parse_line(line);
-	   }
-	   }
-	// SNIP
-	FILE *fp;
-	char *line = NULL;
-	size_t len = 0;
-
-	fp = open(command, "r");
-
-	if (fp != NULL) {
-	ssize_t r = getline(&line, &len, fp);
-	if (r >= 0) { 
-	len = strlen(line);
-
-	if (len && line[len-1] == '\n')
-	line[len-1] = 0;
+void process_line_addgw(char *lineptr, struct json_object *obj){
+	// add interface mesh-vpn-1312 up true ipv6 fe80::ff:3fff:fe10:7d01
+	// add xroute 176.9.85.186/32-::/0 prefix 176.9.85.186/32 from ::/0 metric 0
+	// add route e72c90 prefix 2a06:8187:fbab:1:1aa6:f7ff:fef0:3f60/128 from ::/0 installed yes id 1a:a6:f7:ff:fe:f0:3f:60 metric 96 refmetric 0 via fe80::5cc6:faff:fe81:fe77 if mesh-vpn-1312
+	// add neighbour e72c10 address fe80::5cc6:faff:fe81:fe77 if mesh-vpn-1312 reach ffff rxcost 96 txcost 96 cost 96
+	if (!strncmp(lineptr, "add neighbour", 13)) {
+		handle_neighbor_addgw(obj,lineptr);
 	}
-	else {
-	free(line);
-	line = NULL;
-	}
-
-	pclose(fp);
-	}
-	return line;
-
-
-	// stop paste
-	*/
-	json_object_object_add(obj, "gateway", ipaddr);
-end:
-	free(sockfd);
+	/*  else if  (!strncmp(lineptr, "add route", 9)) {
+	    handle_route(lineptr);
+	    } else if  (!strncmp(lineptr, "add xroute", 10)) {
+	    handle_xroute(lineptr);
+	    } else if  (!strncmp(lineptr, "add interface", 13)) {
+	    handle_interface(lineptr);
+	    }
+	    */
 }
+
+
+void input_pump(int fd, struct json_object obj*, void (*lineprocessor)(char*)(struct json_object*)) {
+	char inbuf[SOCKET_INPUT_BUFFER_SIZE];
+	size_t inbuf_used = 0;
+	size_t inbuf_remain = 0;
+	char *line_start = inbuf ;
+	ssize_t rv=0;
+
+	while  (strncmp(line_start, "done", 4)) {
+		inbuf_remain = sizeof(inbuf) - inbuf_used;
+		if (inbuf_remain == 0) {
+			fprintf(stderr, "Line exceeded buffer length. recompile respondd with larger SOCKET_INPUT_BUFFER_SIZE\n");
+			return;
+		}
+		rv=0;
+		while (rv <=0 ) {
+			rv = recv(fd, (void*)&inbuf[inbuf_used], inbuf_remain, MSG_DONTWAIT);
+			if (rv == 0) {
+				// fprintf(stderr, "Connection closed.\n"); // this may or may not be an error => donot print a message
+				return;
+			}
+			else if (rv < 0 && errno == EAGAIN) {
+				usleep(1000);
+			}
+			else if (rv < 0) {
+				perror("Connection error");
+			}
+		}
+		inbuf_used += rv;
+
+		//scan for newlines, have whole lines processed by lineprocessor
+		line_start = inbuf;
+		char *line_end;
+		while ( (line_end = (char*)memchr((void*)line_start, '\n', inbuf_used - (line_start -  inbuf))))
+		{
+			*line_end = 0;
+			lineprocessor(line_start, obj);
+			if (!strncmp(line_start, "done", 4))
+				return;
+			line_start = line_end + 1;
+		}
+		inbuf_used -= (line_start - inbuf);
+		memmove(inbuf, line_start, inbuf_used);
+	}
+}
+
+readbabeldata(struct json_object *obj, void (*lineprocessor)(char*)(struct json_object*))
+{
+	int sockfd, port;
+
+	if (argc < 3) {
+		fprintf(stderr,"usage %s hostname port\n", argv[0]);
+		exit(0);
+	}
+
+	port = atoi(BABEL_PORT);
+
+	struct sockaddr_in6 serv_addr = {
+		.sin6_family = AF_INET6,
+		.sin6_port = htons(port)
+	};
+
+	sockfd = socket(AF_INET6, SOCK_STREAM, 0);
+	if (sockfd < 0) {
+		perror("ERROR opening socket");
+		return 1;
+	}
+	if (inet_pton(AF_INET6, "::1", &serv_addr.sin6_addr.s6_addr) != 1)
+	{
+		perror("Cannot parse hostname");
+		return 1;
+	}
+	if (connect(sockfd, (const struct sockaddr *)&serv_addr, sizeof(serv_addr)) != 0) {
+		perror("Can not connect to babeld");
+		return 1;
+	}
+
+	input_pump(sockfd, obj, lineprocessor);
+
+	close(sockfd);
+	return 0;
+}
+
 
 static struct json_object * get_clients(void) {
 	size_t wifi24 = 0, wifi5 = 0;
@@ -502,10 +551,10 @@ static struct json_object * get_clients(void) {
 	count_stations(&wifi24, &wifi5);
 
 	// TODO: replace shell with something sensible
-	int total = atoi(get_line_from_run("exec sh -c 'ip -6 r s t 0 |grep 2a06|grep -v mesh-vpn|grep -v unreachable|grep -v /|wc -l'"));
+	size_t total = atoi(get_line_from_run("exec sh -c 'ip -6 r s t 0 |grep 2a06|grep -v mesh-vpn|grep -v unreachable|grep -v /|wc -l'"));
 	total--; 
 
-	int wifi = total - wifi24 - wifi5;
+	size_t wifi = wifi24 + wifi5;
 	struct json_object *ret = json_object_new_object();
 	json_object_object_add(ret, "total", json_object_new_int(total));
 	json_object_object_add(ret, "wifi", json_object_new_int(wifi));
@@ -521,7 +570,8 @@ static struct json_object * respondd_provider_statistics(void) {
 	json_object_object_add(ret, "clients", get_clients());
 	json_object_object_add(ret, "traffic", get_traffic());
 
-	add_gateway(ret);
+	// add gateway(s)
+	readbabeldata(obj, process_line_addgw);
 
 	return ret;
 }
@@ -549,6 +599,9 @@ static struct json_object * ifnames2addrs(struct json_object *interfaces) {
 
 static struct json_object * get_babel(void) {
 	int ret;
+
+	struct uci_context *ctx = uci_alloc_context();
+	ctx->flags &= ~UCI_FLAG_STRICT;
 
 	struct json_object *interfaces;
 	interfaces = json_object_new_array();
